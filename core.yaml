@@ -1,0 +1,1304 @@
+id: https://w3id.org/collabri/core
+name: collabri-core
+title: Collabri Core Schema
+description: >-
+  The foundational Collabri schema. Defines a single, unambiguous vocabulary
+  for contract-scoped Statements of Work, with TaskTeam → Task → recursive
+  Subtasks → typed Deliverables; structured Objective, Metric, and
+  AcceptanceCriterion classes; Milestone-gated payment with per-org
+  breakdowns; and a first-class change-management layer (ChangeProposal /
+  Change / Approval) — "GitHub for contracts."
+
+  Folds together the published collabri/sow architecture (NamedThing
+  base, Versioned + Trackable mixins, recursive Subtasks, typed
+  Deliverable subclasses, Milestone-gated payment, ChangeProposal /
+  Approval) and the v0.4.x tdd additions (Objective sibling to
+  Deliverable, structured Metric with per-metric rationale and
+  metric_text fallback, structured AcceptanceCriterion, sow_spec vs
+  execution_tracking validation profiles, multivalued PayerType enum so
+  the payable-requires-deliverable MUST rule is machine-enforced).
+
+  Alignment policy (term-strategy):
+  Organizations, Persons, and Money reuse external IRIs directly
+  (cco:ont00001180, cco:ont00001262, schema:MonetaryAmount). Subtask and
+  Deliverable subclasses carry FRAPO/CCO/PROV/PAV alignments via
+  class_uri and mappings. Collabri mints only what isn't already there.
+version: 0.5.0
+status: draft
+license: https://creativecommons.org/licenses/by/4.0/
+
+prefixes:
+  core: https://w3id.org/collabri/core/
+  collabri: https://w3id.org/collabri/
+  linkml: https://w3id.org/linkml/
+  xsd: http://www.w3.org/2001/XMLSchema#
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  dcterms: http://purl.org/dc/terms/
+  schema: http://schema.org/
+  prov: http://www.w3.org/ns/prov#
+  pav: http://purl.org/pav/
+  pplan: http://purl.org/net/p-plan#
+  org: http://www.w3.org/ns/org#
+  foaf: http://xmlns.com/foaf/0.1/
+  skos: http://www.w3.org/2004/02/skos/core#
+  qudt: http://qudt.org/schema/qudt/
+  time: http://www.w3.org/2006/time#
+  gist: https://w3id.org/semanticarts/ns/ontology/gist/
+  cco: https://www.commoncoreontologies.org/
+  obo: http://purl.obolibrary.org/obo/
+  frapo: http://purl.org/cerif/frapo/
+  fabio: http://purl.org/spar/fabio/
+  dcat: http://www.w3.org/ns/dcat#
+  doap: http://usefulinc.com/ns/doap#
+  iao: http://purl.obolibrary.org/obo/IAO_
+  adms: http://www.w3.org/ns/adms#
+  odrl: http://www.w3.org/ns/odrl/2/
+  credit: https://credit.niso.org/contributor-roles/
+  fibo_agr: https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Agreements/
+  fibo_ctr: https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/
+  fibo_acc: https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/
+default_prefix: core
+default_range: string
+
+imports:
+  - linkml:types
+
+# =============================================================================
+# SUBSETS (validation profiles)
+# =============================================================================
+subsets:
+  sow_spec:
+    description: >-
+      Fields populated at SOW specification time. Execution-only fields
+      (lead_org, leads, percent_complete, performance_status, etc.) are
+      optional in this profile.
+  execution_tracking:
+    description: >-
+      Fields populated for a mid-flight TDD instance. status, lead_org,
+      leads, performance_status, percent_complete become required by
+      convention in this profile.
+
+# =============================================================================
+# SHARED SLOTS — defined once, used by reference
+# =============================================================================
+slots:
+
+  id:
+    description: Stable identifier; together with version forms the element IRI.
+    required: true
+    identifier: true
+    slot_uri: dcterms:identifier
+    in_subset: [sow_spec, execution_tracking]
+    exact_mappings:
+      - schema:identifier
+
+  name:
+    description: Human-readable name.
+    required: true
+    slot_uri: schema:name
+    in_subset: [sow_spec, execution_tracking]
+    exact_mappings:
+      - dcterms:title
+      - foaf:name
+
+  description:
+    description: Narrative description.
+    slot_uri: dcterms:description
+    in_subset: [sow_spec, execution_tracking]
+    exact_mappings:
+      - schema:description
+
+  due_month:
+    description: >-
+      Due date expressed as a whole number of months since program start
+      (month 1 = the first month of the period of performance). Primary
+      due-date convention in Collabri; calendar dates are derived by
+      anchoring against TaskTeam.period_of_performance_start.
+    range: integer
+    minimum_value: 1
+    in_subset: [sow_spec, execution_tracking]
+    close_mappings:
+      - time:hasBeginning
+      - schema:scheduledTime
+
+# =============================================================================
+# MIXINS (Versioned, Trackable) and the abstract base Core
+# =============================================================================
+classes:
+
+  Core:
+    description: >-
+      Foundational base class for every addressable Collabri element.
+      Provides id / name / description. Renamed from sow's "NamedThing"
+      to match the Collabri-core schema name.
+    abstract: true
+    slots:
+      - id
+      - name
+      - description
+
+  Versioned:
+    description: >-
+      Mixin: per-element version metadata, aligned with PAV and PROV.
+      Element IRI is `<id>/<version>` and an element may have multiple
+      version-snapshots that share an `id`.
+    mixin: true
+    attributes:
+      version:
+        description: Semantic version of this element.
+        slot_uri: pav:version
+        in_subset: [sow_spec, execution_tracking]
+      previous_version:
+        description: IRI of the immediately prior version of this element.
+        range: uriorcurie
+        slot_uri: pav:previousVersion
+        in_subset: [execution_tracking]
+      current_version:
+        description: True iff this is the current accepted version of the element.
+        range: boolean
+        slot_uri: pav:hasCurrentVersion
+        in_subset: [execution_tracking]
+      created_on:
+        description: Date this version snapshot was created.
+        range: date
+        slot_uri: pav:createdOn
+        in_subset: [sow_spec, execution_tracking]
+      authored_by:
+        description: Author(s) of this version snapshot.
+        range: uriorcurie
+        multivalued: true
+        slot_uri: pav:authoredBy
+        in_subset: [sow_spec, execution_tracking]
+
+  Trackable:
+    description: >-
+      Mixin: dual-axis status. ContractualStatus tracks where the element
+      sits in the contract lifecycle (draft, approved, executed, etc.);
+      PerformanceStatus tracks the orthogonal execution state (in
+      progress, blocked, at risk, completed). The two axes never collapse.
+    mixin: true
+    attributes:
+      contractual_status:
+        description: Where this element sits in the contract lifecycle.
+        range: ContractualStatus
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      performance_status:
+        description: Execution state, orthogonal to contractual_status.
+        range: PerformanceStatus
+        in_subset: [execution_tracking]
+        close_mappings:
+          - schema:actionStatus
+
+# =============================================================================
+# ROOT: TaskTeam (was Program; tree_root for a SOW document)
+# =============================================================================
+
+  TaskTeam:
+    description: >-
+      Root of a Statement of Work, scoped to a single contract. A
+      TaskTeam owns its tasks (and via them, subtasks), milestones,
+      obligations, and change proposals. "WorkStream" and "task team"
+      are recorded as exact-synonym aliases.
+    is_a: Core
+    mixins:
+      - Versioned
+      - Trackable
+    tree_root: true
+    structured_aliases:
+      - literal_form: workstream
+        predicate: EXACT_SYNONYM
+      - literal_form: work stream
+        predicate: EXACT_SYNONYM
+      - literal_form: WorkStream
+        predicate: EXACT_SYNONYM
+      - literal_form: task team
+        predicate: EXACT_SYNONYM
+    aliases:
+      - task force
+    close_mappings:
+      - gist:Agreement
+      - fibo_ctr:Contract
+      - prov:Plan
+      - pplan:Plan
+    attributes:
+      award_id:
+        description: Sponsor award or contract identifier.
+        slot_uri: dcterms:identifier
+        in_subset: [sow_spec, execution_tracking]
+      contract_value:
+        description: Total contracted value of the SOW.
+        range: Money
+        inlined: true
+        in_subset: [sow_spec, execution_tracking]
+      program_type:
+        description: Funding mechanism for the contract.
+        range: ProgramType
+        in_subset: [sow_spec, execution_tracking]
+      period_of_performance_start:
+        description: >-
+          Calendar date on which program month 1 begins. Anchor for
+          converting due_month values to absolute calendar dates.
+        range: date
+        slot_uri: schema:startDate
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - time:hasBeginning
+      organizations:
+        description: All organizations participating in the SOW.
+        range: Organization
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      persons:
+        description: All people referenced anywhere in the SOW.
+        range: Person
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      contracting_parties:
+        description: All parties to the contract with their roles.
+        range: Party
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      prime:
+        description: Prime contractor under this contract.
+        range: Organization
+        in_subset: [sow_spec, execution_tracking]
+      sponsor:
+        description: Sponsor under this contract.
+        range: Organization
+        in_subset: [sow_spec, execution_tracking]
+      tasks:
+        description: Tasks (thematic buckets) that make up this SOW.
+        range: Task
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        slot_uri: dcterms:hasPart
+        in_subset: [sow_spec, execution_tracking]
+      milestones:
+        description: Milestones defined at the SOW level (referenced by subtasks).
+        range: Milestone
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      obligations:
+        description: >-
+          Non-payment obligations attached at the SOW level (reporting
+          cadence, data-sharing duties, etc.).
+        range: Obligation
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      change_proposals:
+        description: Open and historical change proposals against this SOW.
+        range: ChangeProposal
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [execution_tracking]
+      approvals:
+        description: Signoffs against versions of SOW elements.
+        range: Approval
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [execution_tracking]
+
+# =============================================================================
+# HIERARCHY: Task → recursive Subtask
+# =============================================================================
+
+  Task:
+    description: >-
+      Thematic bucket of work, possibly spanning the full award.
+    is_a: Core
+    mixins:
+      - Versioned
+      - Trackable
+    close_mappings:
+      - pplan:Plan
+      - obo:BFO_0000015
+      - frapo:Task
+    attributes:
+      spans_full_award:
+        description: True if the task spans the entire period of performance.
+        range: boolean
+        in_subset: [sow_spec, execution_tracking]
+      start_date:
+        description: Calendar start date of this task (optional; otherwise derived from subtasks).
+        range: date
+        in_subset: [sow_spec, execution_tracking]
+      end_date:
+        description: Calendar end date of this task (optional; otherwise derived from subtasks).
+        range: date
+        in_subset: [sow_spec, execution_tracking]
+      subtasks:
+        description: Subtasks belonging to this task.
+        range: Subtask
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: dcterms:hasPart
+        in_subset: [sow_spec, execution_tracking]
+
+  Subtask:
+    description: >-
+      A step toward completion of a Task. Subtasks nest recursively to
+      arbitrary depth and are owned by exactly one TaskTeam (no shared
+      ownership). Each subtask may be sponsor- and/or prime-payable;
+      payment is triggered by acceptance of the referenced Milestone.
+
+      Modeling note: Objective and Deliverable are deliberately distinct
+      siblings on Subtask. Objective is the *aim* of the work; Deliverable
+      is the *artifact* that fulfills the aim. Deliverable descriptions
+      should not restate the objective.
+    is_a: Core
+    mixins:
+      - Versioned
+      - Trackable
+    class_uri: frapo:Task
+    close_mappings:
+      - cco:ont00000005   # Act
+      - pplan:Step
+      - prov:Activity
+      - gist:Task
+    related_mappings:
+      - gist:Commitment
+      - fibo_ctr:ContractualCommitment
+    annotations:
+      external_parent: cco:ont00000005
+    attributes:
+      objective:
+        description: >-
+          The aim of this subtask — what success looks like, expressed
+          once, independent of any specific deliverable. Optional but
+          strongly encouraged: setting it explicitly is what prevents
+          the 90%-overlap-with-deliverable failure mode.
+        range: Objective
+        inlined: true
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - schema:purpose
+      due_month:
+        description: >-
+          Due date expressed as a whole number of months since program
+          start. Required at the subtask level.
+        range: integer
+        minimum_value: 1
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      start_date:
+        description: >-
+          Calendar start date for this subtask. Optional; defaults are
+          derived from due_month and TaskTeam.period_of_performance_start.
+        range: date
+        in_subset: [sow_spec, execution_tracking]
+      end_date:
+        description: >-
+          Calendar end date for this subtask. Optional; defaults are
+          derived from due_month and TaskTeam.period_of_performance_start.
+        range: date
+        in_subset: [sow_spec, execution_tracking]
+      percent_complete:
+        description: >-
+          For partial-completion payable subtasks (e.g. reports paid in
+          stages), the current percent complete against the subtask's
+          scope.
+        range: float
+        minimum_value: 0
+        maximum_value: 100
+        in_subset: [execution_tracking]
+      lead_org:
+        description: The organization accountable for delivering this subtask.
+        range: Organization
+        slot_uri: prov:wasAssociatedWith
+        in_subset: [execution_tracking]
+      leads:
+        description: The person or people leading this subtask.
+        range: Person
+        multivalued: true
+        slot_uri: prov:wasAssociatedWith
+        in_subset: [execution_tracking]
+      payable_by:
+        description: >-
+          Which parties owe payment on acceptance of the milestone gating
+          this subtask. Absent or empty means non-payable. Include
+          "sponsor" for sponsor-payable, "prime" for prime-payable, or
+          both. The MUST rule that payable subtasks require a deliverable
+          is machine-enforced through this enum slot.
+        range: PayerType
+        multivalued: true
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - fibo_ctr:hasContractParty
+      milestone:
+        description: >-
+          Milestone whose acceptance gates contractual events (e.g.
+          payment) for this subtask. Referenced by id; the Milestone
+          itself is defined on TaskTeam.milestones.
+        range: Milestone
+        in_subset: [sow_spec, execution_tracking]
+      sponsor_payable_value:
+        description: >-
+          The single sponsor-payable amount for this subtask. Populate
+          only when payable_by includes "sponsor".
+        range: Money
+        inlined: true
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - schema:price
+      prime_payable_values:
+        description: >-
+          Prime-payable amounts, broken out per organization. Populate
+          only when payable_by includes "prime".
+        range: OrgPayableValue
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      deliverables:
+        description: >-
+          Deliverables produced by this subtask. Required (one or more)
+          when the subtask is sponsor- or prime-payable.
+        range: Deliverable
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: prov:generated
+        in_subset: [sow_spec, execution_tracking]
+      subtasks:
+        description: Nested sub-subtasks (arbitrary depth).
+        range: Subtask
+        multivalued: true
+        inlined_as_list: true
+        slot_uri: dcterms:hasPart
+        in_subset: [sow_spec, execution_tracking]
+      depends_on:
+        description: Other subtasks that must complete before this one can proceed.
+        range: Subtask
+        multivalued: true
+        slot_uri: dcterms:requires
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - prov:wasInformedBy
+    rules:
+      - title: payable_subtasks_require_a_deliverable
+        description: >-
+          A payable subtask (payable_by names at least one paying party)
+          must carry one or more deliverables. Each deliverable in turn
+          requires metrics, acceptance_criteria, and per-metric
+          rationale.
+        preconditions:
+          slot_conditions:
+            payable_by:
+              has_member:
+                range: PayerType
+        postconditions:
+          slot_conditions:
+            deliverables:
+              required: true
+      - title: only_payable_subtasks_can_be_accepted_or_paid
+        description: >-
+          The "accepted" and "paid" contractual statuses presuppose a
+          payable subtask.
+        preconditions:
+          slot_conditions:
+            contractual_status:
+              equals_string_in:
+                - accepted
+                - paid
+        postconditions:
+          slot_conditions:
+            payable_by:
+              has_member:
+                range: PayerType
+
+# =============================================================================
+# MILESTONE (payable trigger, defined on TaskTeam, referenced by Subtask)
+# =============================================================================
+
+  Milestone:
+    description: >-
+      A milestone groups subtasks (linked via Subtask.milestone) and
+      triggers contractual events such as payment on acceptance.
+    is_a: Core
+    mixins:
+      - Versioned
+      - Trackable
+    close_mappings:
+      - fibo_ctr:ContractualCommitment
+    attributes:
+      milestone_type:
+        description: Kind of milestone event.
+        range: MilestoneType
+        in_subset: [sow_spec, execution_tracking]
+      target_date:
+        description: Target calendar date for this milestone.
+        range: date
+        in_subset: [sow_spec, execution_tracking]
+      target_month:
+        description: Target month (since program start) for this milestone.
+        range: integer
+        minimum_value: 1
+        in_subset: [sow_spec, execution_tracking]
+      achieved_date:
+        description: Date the milestone was achieved.
+        range: date
+        in_subset: [execution_tracking]
+      decision:
+        description: >-
+          For decision-type milestones (e.g. go/no-go gates), the
+          recorded decision outcome.
+        in_subset: [execution_tracking]
+      payment:
+        description: Optional payment obligation triggered by milestone acceptance.
+        range: Payment
+        inlined: true
+        in_subset: [sow_spec, execution_tracking]
+
+# =============================================================================
+# OBJECTIVE + ACCEPTANCE CRITERION + METRIC (the structured-evaluation layer)
+# =============================================================================
+
+  Objective:
+    description: >-
+      The aim of a subtask — a single statement of what success means for
+      this chunk of work. Sibling to Deliverable on Subtask: Objective is
+      the intent (outcome), Deliverable is the artifact (output) that
+      fulfills it.
+    close_mappings:
+      - schema:purpose
+      - cco:ont00000958
+    attributes:
+      statement:
+        description: >-
+          The objective expressed as a single, declarative aim. Should
+          describe outcome, not artifact.
+        required: true
+        slot_uri: dcterms:description
+        in_subset: [sow_spec, execution_tracking]
+      notes:
+        description: >-
+          Optional free-text notes (e.g. alignment to program goals,
+          scope clarifications).
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - skos:scopeNote
+
+  AcceptanceCriterion:
+    description: >-
+      A single, testable condition for accepting a deliverable. Bundles
+      the criterion statement with an optional verification method and
+      rationale, so review and audit can resolve each criterion
+      independently.
+    close_mappings:
+      - cco:ont00000958
+      - fibo_ctr:ContractualCommitment
+    attributes:
+      statement:
+        description: >-
+          The acceptance condition expressed as a single, checkable
+          statement.
+        required: true
+        slot_uri: dcterms:description
+        in_subset: [sow_spec, execution_tracking]
+      verification_method:
+        description: >-
+          How the criterion will be checked (e.g. "test suite green",
+          "editorial review", "demo accepted by sponsor").
+        in_subset: [sow_spec, execution_tracking]
+      rationale:
+        description: Why this criterion was chosen.
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - skos:scopeNote
+
+  Metric:
+    description: >-
+      A measurable indicator used to evaluate a deliverable, together
+      with the rationale for why this specific metric was selected. The
+      Metric may carry a verbatim free-text statement (metric_text) when
+      the SOW source has not yet broken metrics down into structured
+      fields.
+    close_mappings:
+      - schema:PropertyValue
+    related_mappings:
+      - qudt:Quantity
+    attributes:
+      name:
+        description: Short name of the metric.
+        in_subset: [sow_spec, execution_tracking]
+      metric_text:
+        description: >-
+          Free-text fallback carrying the metric's verbatim statement
+          from the source SOW, when the metric is not yet broken into
+          structured name/target/unit fields.
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - dcterms:description
+      target_value:
+        description: The target value to be achieved.
+        slot_uri: qudt:value
+        in_subset: [sow_spec, execution_tracking]
+      actual_value:
+        description: The observed / current value, when known.
+        in_subset: [execution_tracking]
+        close_mappings:
+          - qudt:value
+          - schema:value
+      unit:
+        description: Unit of measure for the target and actual values.
+        slot_uri: qudt:hasUnit
+        in_subset: [sow_spec, execution_tracking]
+      rationale:
+        description: >-
+          Per-metric rationale: why this specific metric was chosen and
+          how it evidences successful delivery.
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - dcterms:description
+          - skos:scopeNote
+
+# =============================================================================
+# DELIVERABLE — abstract base + typed subclasses
+# =============================================================================
+
+  Deliverable:
+    description: >-
+      A concrete, acceptance-bearing output owed for a payable subtask.
+      Abstract base — instantiate one of the typed subclasses (Activity,
+      Data, Method, NarrativeDocument, Software, Standard).
+    abstract: true
+    is_a: Core
+    mixins:
+      - Versioned
+      - Trackable
+    close_mappings:
+      - prov:Entity
+      - schema:CreativeWork
+      - cco:ont00000958
+      - cco:ont00000995
+    attributes:
+      category:
+        description: >-
+          Discriminator naming the concrete Deliverable subclass for this
+          instance. Required because Deliverable is abstract; every
+          instance must declare which typed subclass it is (Activity,
+          Data, Method, NarrativeDocument, Software, Standard).
+        designates_type: true
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      acceptance_criteria:
+        description: >-
+          The condition(s) that must be met for this deliverable to be
+          accepted. Required at 1.0; structured list of testable
+          AcceptanceCriterion.
+        range: AcceptanceCriterion
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      metrics:
+        description: The metric(s) by which this deliverable is evaluated.
+        range: Metric
+        multivalued: true
+        inlined_as_list: true
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      due_month:
+        description: >-
+          Optional deliverable-specific due month. If absent, the parent
+          subtask's due_month governs.
+        range: integer
+        minimum_value: 1
+        in_subset: [sow_spec, execution_tracking]
+      contributors:
+        description: Per-deliverable contributor roles (CRediT-aligned).
+        range: Contribution
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [execution_tracking]
+      format:
+        description: Delivery format (PDF, repository, briefing, etc.).
+        slot_uri: dcterms:format
+        in_subset: [sow_spec, execution_tracking]
+      delivered_date:
+        description: Date the deliverable was actually delivered.
+        range: date
+        in_subset: [execution_tracking]
+
+  Activity:
+    description: An event-type deliverable (training, workshop, presentation).
+    is_a: Deliverable
+    close_mappings:
+      - schema:Event
+    attributes:
+      activity_date:
+        description: Date the activity was held.
+        range: date
+        in_subset: [execution_tracking]
+      location:
+        description: Location (physical or virtual) of the activity.
+        in_subset: [sow_spec, execution_tracking]
+      attendee_count:
+        description: Number of attendees (recorded post-event).
+        range: integer
+        minimum_value: 0
+        in_subset: [execution_tracking]
+
+  Data:
+    description: A dataset, spreadsheet, or other structured-data artifact.
+    is_a: Deliverable
+    close_mappings:
+      - dcat:Dataset
+      - schema:Dataset
+    attributes:
+      distribution_url:
+        description: URL where the dataset is distributed.
+        slot_uri: dcat:downloadURL
+        in_subset: [execution_tracking]
+      record_count:
+        description: Number of records in the dataset.
+        range: integer
+        minimum_value: 0
+        in_subset: [execution_tracking]
+
+  Method:
+    description: A method deliverable, modeled as a prov:Plan.
+    is_a: Deliverable
+    close_mappings:
+      - prov:Plan
+      - pplan:Plan
+    attributes:
+      protocol_url:
+        description: URL where the method/protocol is documented.
+        in_subset: [sow_spec, execution_tracking]
+
+  NarrativeDocument:
+    description: >-
+      Policy, SOP, report, recommendation, publication, progress-report
+      blurb, etc. Subtype distinguishes the kind of narrative document.
+    is_a: Deliverable
+    close_mappings:
+      - fabio:Work
+      - schema:CreativeWork
+    attributes:
+      narrative_type:
+        description: Subtype of narrative document.
+        range: NarrativeDocumentType
+        in_subset: [sow_spec, execution_tracking]
+      collabri_doc_id:
+        description: Controlled-document identifier in Collabri.
+        in_subset: [execution_tracking]
+      distribution_url:
+        description: URL where the document is published.
+        in_subset: [execution_tracking]
+
+  Software:
+    description: A software deliverable (source code, library, release).
+    is_a: Deliverable
+    close_mappings:
+      - doap:Project
+      - schema:SoftwareApplication
+    attributes:
+      repository_url:
+        description: URL of the source repository.
+        slot_uri: doap:repository
+        in_subset: [sow_spec, execution_tracking]
+      software_license:
+        description: License under which the software is distributed.
+        slot_uri: doap:license
+        in_subset: [sow_spec, execution_tracking]
+
+  Standard:
+    description: A normative or internal standard, classified by subtype.
+    is_a: Deliverable
+    close_mappings:
+      - adms:Asset
+    attributes:
+      standard_subtype:
+        description: Kind of standard (ADMS-aligned).
+        range: StandardSubtype
+        in_subset: [sow_spec, execution_tracking]
+      standard_body:
+        description: Organization stewarding the standard, if external.
+        range: Organization
+        in_subset: [sow_spec, execution_tracking]
+
+# =============================================================================
+# OBLIGATIONS — Payment + ReportingObligation
+# =============================================================================
+
+  Obligation:
+    description: >-
+      Abstract base for any contractual duty (ODRL pattern). Concrete
+      subclasses model payment, reporting cadence, etc.
+    abstract: true
+    is_a: Core
+    close_mappings:
+      - odrl:Duty
+      - fibo_ctr:ContractualCommitment
+    attributes:
+      obligation_class:
+        description: Discriminator for the concrete Obligation subclass.
+        in_subset: [sow_spec, execution_tracking]
+      assigner:
+        description: Party imposing the obligation.
+        range: Party
+        slot_uri: odrl:assigner
+        in_subset: [sow_spec, execution_tracking]
+      assignee:
+        description: Party bound by the obligation.
+        range: Party
+        slot_uri: odrl:assignee
+        in_subset: [sow_spec, execution_tracking]
+      action:
+        description: >-
+          ODRL action term or local action label (e.g. "report",
+          "deliver", "pay").
+        slot_uri: odrl:action
+        in_subset: [sow_spec, execution_tracking]
+      terms_ref:
+        description: Pointer to the governing contract clause.
+        in_subset: [sow_spec, execution_tracking]
+
+  Payment:
+    description: Payment obligation tied to milestone acceptance.
+    is_a: Obligation
+    close_mappings:
+      - fibo_acc:MonetaryAmount
+    attributes:
+      planned_amount:
+        description: Planned payment amount on milestone acceptance.
+        range: Money
+        inlined: true
+        in_subset: [sow_spec, execution_tracking]
+      basis:
+        description: How the payment is structured (fixed, percent_complete, etc.).
+        range: PaymentBasis
+        in_subset: [sow_spec, execution_tracking]
+      payor:
+        description: Which party owes the payable on milestone acceptance.
+        range: PayorParty
+        in_subset: [sow_spec, execution_tracking]
+
+  ReportingObligation:
+    description: >-
+      Recurring reporting duty (quarterly progress report, annual
+      technical report, etc.).
+    is_a: Obligation
+    attributes:
+      cadence:
+        description: Reporting cadence (e.g. "quarterly", "annually").
+        in_subset: [sow_spec, execution_tracking]
+      first_due:
+        description: First due-month for the recurring report.
+        range: integer
+        minimum_value: 1
+        in_subset: [sow_spec, execution_tracking]
+      template_uri:
+        description: Pointer to the required reporting template, if any.
+        in_subset: [sow_spec, execution_tracking]
+
+# =============================================================================
+# CHANGE MANAGEMENT: ChangeProposal / Change / Approval
+# =============================================================================
+
+  ChangeProposal:
+    description: >-
+      A bundled set of element-level Changes against a base SOW version,
+      analogous to a GitHub pull request. Approvals against this proposal
+      promote the merged_version to current.
+    is_a: Core
+    attributes:
+      base_version:
+        description: Version of the SOW this proposal targets.
+        in_subset: [execution_tracking]
+      proposed_by:
+        description: Author of the proposal.
+        range: uriorcurie
+        in_subset: [execution_tracking]
+      proposed_on:
+        description: Date the proposal was opened.
+        range: date
+        in_subset: [execution_tracking]
+      status:
+        description: Lifecycle of this proposal (open, merged, closed, etc.).
+        range: ChangeProposalStatus
+        required: true
+        in_subset: [execution_tracking]
+      changes:
+        description: Element-level changes bundled in this proposal.
+        range: Change
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [execution_tracking]
+      merged_on:
+        description: Date the proposal was merged.
+        range: date
+        in_subset: [execution_tracking]
+      merged_version:
+        description: Resulting SOW semver after merge.
+        in_subset: [execution_tracking]
+      signed_artifact_uri:
+        description: Pointer to the executed envelope (DocuSign, etc.).
+        in_subset: [execution_tracking]
+
+  Change:
+    description: A single element-level edit within a ChangeProposal.
+    attributes:
+      id:
+        required: true
+        identifier: true
+        slot_uri: dcterms:identifier
+      change_kind:
+        description: Kind of element-level edit.
+        range: ChangeKind
+        required: true
+      target_class:
+        description: Class of the target (Task, Subtask, Milestone, Deliverable, etc.).
+      target_id:
+        description: ID of the element being changed.
+      target_version:
+        description: pav:version of the target at time of the change.
+      section_ref:
+        description: Section under change control, if scoped narrower than the full element.
+      before:
+        description: Snapshot of the element before the change (null for adds).
+      after:
+        description: Snapshot of the element after the change (null for removes).
+      basis:
+        description: Free-text rationale for this specific change.
+
+  Approval:
+    description: Signoff on a specific version of a SOW element.
+    is_a: Core
+    attributes:
+      target_class:
+        description: Class of the target (Task, Subtask, Milestone, Deliverable, etc.).
+        in_subset: [execution_tracking]
+      target_id:
+        description: ID of the element being approved.
+        in_subset: [execution_tracking]
+      target_version:
+        description: pav:version of the target at time of approval.
+        in_subset: [execution_tracking]
+      approver:
+        description: The person signing off.
+        range: Person
+        in_subset: [execution_tracking]
+      party:
+        description: Party the approver is signing on behalf of.
+        range: Party
+        in_subset: [execution_tracking]
+      approved_on:
+        description: Date the approval was recorded.
+        range: date
+        in_subset: [execution_tracking]
+      signed_artifact_uri:
+        description: Pointer to the executed envelope (DocuSign, etc.).
+        in_subset: [execution_tracking]
+
+# =============================================================================
+# AGENTS, PARTIES, CONTRIBUTORS, MONEY
+# =============================================================================
+
+  Organization:
+    description: An organization participating in the SOW.
+    class_uri: cco:ont00001180
+    exact_mappings:
+      - foaf:Organization
+      - schema:Organization
+      - gist:Organization
+      - prov:Organization
+      - org:Organization
+    attributes:
+      id:
+        required: true
+        identifier: true
+        slot_uri: dcterms:identifier
+      name:
+        description: Legal or common name.
+        required: true
+        slot_uri: schema:name
+      ror_id:
+        description: ROR identifier for the organization, if available.
+        slot_uri: schema:identifier
+        in_subset: [sow_spec, execution_tracking]
+      org_type:
+        description: The organization's role in the program.
+        range: OrgType
+        in_subset: [sow_spec, execution_tracking]
+
+  Person:
+    description: A person who can be assigned as a lead or contributor.
+    class_uri: cco:ont00001262
+    exact_mappings:
+      - foaf:Person
+      - schema:Person
+      - prov:Person
+    attributes:
+      id:
+        required: true
+        identifier: true
+        slot_uri: dcterms:identifier
+      name:
+        description: Full name.
+        required: true
+        slot_uri: schema:name
+      email:
+        description: Contact email.
+        pattern: "^\\S+@\\S+\\.\\S+$"
+        slot_uri: schema:email
+        exact_mappings:
+          - foaf:mbox
+      orcid:
+        description: ORCID identifier.
+        slot_uri: schema:identifier
+        in_subset: [sow_spec, execution_tracking]
+      affiliation:
+        description: The organization this person belongs to.
+        range: Organization
+        slot_uri: schema:affiliation
+        in_subset: [sow_spec, execution_tracking]
+
+  Party:
+    description: A role-bearing entity in the contract (Organization or Person wrapped with a contract role).
+    is_a: Core
+    close_mappings:
+      - org:Role
+      - fibo_ctr:ContractParty
+    attributes:
+      agent:
+        description: The Organization or Person playing the party role.
+        range: uriorcurie
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      role:
+        description: Contract role (sponsor, prime, subcontractor, performer, etc.).
+        range: OrgType
+        in_subset: [sow_spec, execution_tracking]
+
+  Contribution:
+    description: Contributor role on a deliverable, CRediT-aligned where applicable.
+    attributes:
+      contributor:
+        description: Person who made the contribution.
+        range: Person
+        required: true
+        in_subset: [execution_tracking]
+      role:
+        description: CRediT contributor role (e.g. "writing - original draft").
+        in_subset: [execution_tracking]
+        close_mappings:
+          - credit:writing-original-draft
+
+  OrgPayableValue:
+    description: >-
+      An organization-specific prime-payable amount, used to break the
+      prime-payable bucket out by participating organization.
+    close_mappings:
+      - gist:Commitment
+      - fibo_ctr:ContractualCommitment
+    attributes:
+      organization:
+        description: The organization to which this payable value applies.
+        range: Organization
+        required: true
+        slot_uri: org:organization
+        in_subset: [sow_spec, execution_tracking]
+      amount:
+        description: The payable amount for this organization.
+        range: Money
+        inlined: true
+        required: true
+        slot_uri: schema:price
+        in_subset: [sow_spec, execution_tracking]
+
+  Money:
+    description: A monetary amount with currency. Reuses schema:MonetaryAmount directly.
+    class_uri: schema:MonetaryAmount
+    close_mappings:
+      - fibo_acc:MonetaryAmount
+      - gist:MonetaryAmount
+    attributes:
+      value:
+        description: The numeric amount.
+        range: decimal
+        minimum_value: 0
+        required: true
+        slot_uri: schema:value
+      currency:
+        description: ISO 4217 currency code.
+        ifabsent: string(USD)
+        pattern: "^[A-Z]{3}$"
+        slot_uri: schema:currency
+
+# =============================================================================
+# ENUMERATIONS
+# =============================================================================
+enums:
+
+  ContractualStatus:
+    description: Where this element sits in the contract lifecycle.
+    enum_uri: core:ContractualStatusScheme
+    permissible_values:
+      draft:
+        description: Drafted but not yet submitted for approval.
+      proposed:
+        description: Submitted for approval (in a ChangeProposal).
+      approved:
+        description: Approved, not yet executed (e.g. signed).
+      executed:
+        description: Executed (signed).
+      accepted:
+        description: Deliverable / milestone accepted by the paying party. Payable subtasks only.
+      paid:
+        description: Payment for the accepted item has been made. Payable subtasks only.
+      superseded:
+        description: Replaced by a newer version.
+      cancelled:
+        description: Descoped or terminated.
+
+  PerformanceStatus:
+    description: Execution state, orthogonal to ContractualStatus.
+    enum_uri: core:PerformanceStatusScheme
+    close_mappings:
+      - schema:ActionStatusType
+    permissible_values:
+      not_started:
+        description: Work has not yet begun.
+      in_progress:
+        description: Work is underway.
+      at_risk:
+        description: In progress but at risk of slipping due_month or acceptance.
+      blocked:
+        description: Cannot proceed pending resolution of a dependency or external decision.
+      completed:
+        description: Work is finished.
+
+  PayerType:
+    description: A party that owes payment on milestone acceptance.
+    enum_uri: core:PayerTypeScheme
+    related_mappings:
+      - fibo_ctr:ContractParty
+    permissible_values:
+      sponsor:
+        description: The government sponsor pays on acceptance (sponsor-payable).
+      prime:
+        description: The prime contractor pays on acceptance (prime-payable).
+
+  OrgType:
+    description: The role an organization plays in the program.
+    enum_uri: core:OrgTypeScheme
+    close_mappings:
+      - org:Role
+      - schema:Role
+    permissible_values:
+      prime:
+        description: The prime contractor.
+      subcontractor:
+        description: A subcontractor or performer under the prime.
+      sponsor:
+        description: The government sponsor / paying agency.
+      government:
+        description: A government participant that is not the paying sponsor.
+      performer:
+        description: A research performer (commonly under the prime).
+      other:
+        description: Any other participating organization.
+
+  ProgramType:
+    description: Funding mechanism for the contract.
+    enum_uri: core:ProgramTypeScheme
+    permissible_values:
+      cooperative_agreement: {}
+      contract: {}
+      grant: {}
+      other_transaction_authority: {}
+      bridge: {}
+      other: {}
+
+  MilestoneType:
+    description: Kind of milestone event.
+    enum_uri: core:MilestoneTypeScheme
+    permissible_values:
+      delivery: {}
+      decision: {}
+      payment: {}
+      review: {}
+      reporting: {}
+      kickoff: {}
+      closeout: {}
+      other: {}
+
+  PaymentBasis:
+    description: How a milestone payment is structured.
+    enum_uri: core:PaymentBasisScheme
+    permissible_values:
+      fixed:
+        description: A single fixed amount on acceptance.
+      percent_complete:
+        description: Paid proportionally as percent_complete progresses.
+      cost_reimbursement:
+        description: Cost-reimbursement basis.
+      other: {}
+
+  PayorParty:
+    description: Which party owes the payable on milestone acceptance.
+    enum_uri: core:PayorPartyScheme
+    permissible_values:
+      sponsor: {}
+      prime: {}
+
+  NarrativeDocumentType:
+    description: Subtype of a narrative-document deliverable.
+    enum_uri: core:NarrativeDocumentTypeScheme
+    permissible_values:
+      progress_report: {}
+      final_report: {}
+      technical_report: {}
+      policy: {}
+      sop: {}
+      recommendation: {}
+      publication: {}
+      plan: {}
+      memo: {}
+      other: {}
+
+  StandardSubtype:
+    description: Kinds of standards, ADMS-aligned where applicable.
+    enum_uri: core:StandardSubtypeScheme
+    close_mappings:
+      - adms:Asset
+    permissible_values:
+      data_standard: {}
+      controlled_vocabulary: {}
+      schema: {}
+      methodology: {}
+      reporting_standard: {}
+      other: {}
+
+  ChangeProposalStatus:
+    description: Lifecycle of a change proposal (≈ GitHub PR).
+    enum_uri: core:ChangeProposalStatusScheme
+    permissible_values:
+      open:
+        description: Proposed and under review.
+      approved:
+        description: Approved but not yet merged.
+      merged:
+        description: Merged into the current SOW version.
+      closed:
+        description: Closed without merge.
+      withdrawn:
+        description: Withdrawn by the proposer.
+
+  ChangeKind:
+    description: Kind of element-level edit within a ChangeProposal.
+    enum_uri: core:ChangeKindScheme
+    permissible_values:
+      add: {}
+      modify: {}
+      remove: {}
+      rename: {}
+      move: {}

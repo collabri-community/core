@@ -1,0 +1,5 @@
+title: Collabri Core Schema
+description: Permanent identifiers and schema browser for Collabri Core.
+theme: jekyll-theme-cayman
+url: https://collabri-io.github.io
+baseurl: /core
