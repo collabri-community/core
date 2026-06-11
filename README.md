@@ -3,12 +3,26 @@
 [![w3id](https://img.shields.io/badge/w3id-collabri%2Fcore-blue)](https://w3id.org/collabri/core)
 
 The foundational Collabri schema. Defines a single, unambiguous vocabulary
-for contract-scoped Statements of Work, with `TaskTeam` → `Task` →
-recursive `Subtask` → typed `Deliverable` subclasses; structured
-`Objective`, `Metric`, and `AcceptanceCriterion` classes;
-Milestone-gated payment with per-org breakdowns; and a first-class
-change-management layer (`ChangeProposal` / `Change` / `Approval`) —
-"GitHub for contracts."
+for contract-scoped Statements of Work and the budget structure that
+accompanies them, covering:
+
+- the **work hierarchy** — `TaskTeam` → `Task` → recursive `Subtask` →
+  typed `Deliverable` subclasses (`Activity`, `Data`, `Method`,
+  `NarrativeDocument`, `Software`, `Standard`);
+- **structured evaluation** — `Objective` (the aim) as a sibling to
+  `Deliverable` (the artifact), with `Metric` and `AcceptanceCriterion`
+  as structured classes carrying per-metric rationale and per-criterion
+  verification method;
+- the full **budget view** — `contract_value` at the `TaskTeam` level,
+  Milestone-gated payments with sponsor- vs prime-payable distinctions,
+  per-organization breakdowns (`OrgPayableValue`) on the prime side, and
+  `Payment` obligations with `fixed` / `percent_complete` /
+  `cost_reimbursement` bases. A TDD instance also functions as a budget
+  instance that rolls up cleanly from subtask milestones to the contract
+  total;
+- a first-class **change-management layer** — `ChangeProposal` / `Change`
+  / `Approval` ("GitHub for contracts"), with PAV-aligned version
+  metadata on every addressable element.
 
 ## Canonical IRI
 

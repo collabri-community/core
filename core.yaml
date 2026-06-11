@@ -3,11 +3,20 @@ name: collabri-core
 title: Collabri Core Schema
 description: >-
   The foundational Collabri schema. Defines a single, unambiguous vocabulary
-  for contract-scoped Statements of Work, with TaskTeam → Task → recursive
-  Subtasks → typed Deliverables; structured Objective, Metric, and
-  AcceptanceCriterion classes; Milestone-gated payment with per-org
-  breakdowns; and a first-class change-management layer (ChangeProposal /
-  Change / Approval) — "GitHub for contracts."
+  for contract-scoped Statements of Work and the budget structure that
+  accompanies them, covering: the work hierarchy (TaskTeam → Task →
+  recursive Subtask → typed Deliverable subclasses); structured evaluation
+  (Objective, Metric, and AcceptanceCriterion); the full budget view —
+  contract_value at the TaskTeam level, datestamped BudgetEntry
+  snapshots that cover proposed / awarded / working planning views and
+  actual / encumbrance execution views (each with payor, optional
+  per-organization breakdown, and a cost basis carried at the entry
+  level so cost-reimbursable primes can include fixed-price subs without
+  contradiction), and Milestone-gated Payment obligations — so a TDD
+  instance also functions as a budget instance that rolls up cleanly from
+  subtask milestones to the contract total; and a first-class
+  change-management layer (ChangeProposal / Change / Approval) — "GitHub
+  for contracts."
 
   Folds together the published collabri/sow architecture (NamedThing
   base, Versioned + Trackable mixins, recursive Subtasks, typed
@@ -23,13 +32,14 @@ description: >-
   (cco:ont00001180, cco:ont00001262, schema:MonetaryAmount). Subtask and
   Deliverable subclasses carry FRAPO/CCO/PROV/PAV alignments via
   class_uri and mappings. Collabri mints only what isn't already there.
-version: 0.5.0
+version: 0.5.4
 status: draft
 license: https://creativecommons.org/licenses/by/4.0/
 
 prefixes:
   core: https://w3id.org/collabri/core/
   collabri: https://w3id.org/collabri/
+  pi: https://w3id.org/tislab/proposal-intent/core/
   linkml: https://w3id.org/linkml/
   xsd: http://www.w3.org/2001/XMLSchema#
   rdfs: http://www.w3.org/2000/01/rdf-schema#
@@ -200,6 +210,21 @@ classes:
       TaskTeam owns its tasks (and via them, subtasks), milestones,
       obligations, and change proposals. "WorkStream" and "task team"
       are recorded as exact-synonym aliases.
+
+      Lifecycle linkage: a TaskTeam is the post-award realization of an
+      upstream Proposal Intent record (see https://w3id.org/tislab/
+      proposal-intent/core). The optional `proposal` slot is a
+      uriorcurie foreign key back to pi:Proposal.id, and the optional
+      `proposal_segment` slot labels which slice of that proposal this
+      TaskTeam realizes — because a single Proposal commonly spans
+      multiple task areas, aims, or work packages, each of which
+      becomes its own TaskTeam at award time (Proposal 1 : N TaskTeam).
+      Proposal Intent captures the pre-award shape — sponsor, funding
+      opportunity, deadlines, PI roster, subaward intentions — and
+      Collabri Core picks up at award execution. Loose-coupling by FK
+      keeps the two vocabularies independent: institution-specific
+      extensions of Proposal Intent (UNC, US-federal, etc.) evolve
+      without dragging Collabri Core, and conversely.
     is_a: Core
     mixins:
       - Versioned
@@ -226,10 +251,61 @@ classes:
         description: Sponsor award or contract identifier.
         slot_uri: dcterms:identifier
         in_subset: [sow_spec, execution_tracking]
+      proposal:
+        description: >-
+          Foreign key to the upstream Proposal Intent record this
+          contract derives from (pi:Proposal.id in the institution-
+          agnostic Proposal Intent Core schema, https://w3id.org/tislab/
+          proposal-intent/core). Proposal Intent captures the pre-award
+          information — sponsor, funding opportunity, PI roster,
+          deadlines, subaward intentions — that becomes the working
+          contract scope when awarded. Loose coupling by uriorcurie
+          rather than inlining: the proposal and the TaskTeam live in
+          different schemas and evolve independently, but link
+          referentially so a contract instance can be traced back to its
+          proposal of record.
+
+          Cardinality is Proposal 1 : N TaskTeam. A single proposal
+          commonly spans multiple task areas (a DARPA TA1/TA2/TA3 BAA,
+          an NIH multi-aim grant, a multi-PI award with separable
+          subscopes) and each awarded slice becomes its own TaskTeam.
+          Use proposal_segment to label which slice this TaskTeam
+          realizes.
+        range: uriorcurie
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - dcterms:source
+          - prov:wasDerivedFrom
+      proposal_segment:
+        description: >-
+          Identifier of the slice of the upstream proposal this TaskTeam
+          realizes. Used when a single Proposal yields multiple
+          TaskTeams (multi-TA BAAs, multi-aim grants, multi-PI awards).
+          Free-text by convention — typical values are domain-specific
+          strings the proposal itself used: "TA1", "TA2", "Aim 1",
+          "Aim 2", "Work Package C", "Subproject A". Becomes a uriorcurie
+          when the upstream Proposal Intent schema starts modelling task
+          areas / aims as structured entries; for now it stays a string
+          so it can carry whatever the proposal said.
+        in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - dcterms:isPartOf
       contract_value:
-        description: Total contracted value of the SOW.
+        description: >-
+          Headline contract value for convenience. The detailed,
+          datestamped breakdown lives in budget_entries; contract_value
+          should match the latest working-budget entry's headline total.
         range: Money
         inlined: true
+        in_subset: [sow_spec, execution_tracking]
+      budget_entries:
+        description: >-
+          Contract-level datestamped budget snapshots. Captures the
+          proposed / awarded / working planning history and the actual
+          / encumbrance execution view at the contract total level.
+        range: BudgetEntry
+        multivalued: true
+        inlined_as_list: true
         in_subset: [sow_spec, execution_tracking]
       program_type:
         description: Funding mechanism for the contract.
@@ -438,23 +514,24 @@ classes:
           itself is defined on TaskTeam.milestones.
         range: Milestone
         in_subset: [sow_spec, execution_tracking]
-      sponsor_payable_value:
+      budget_entries:
         description: >-
-          The single sponsor-payable amount for this subtask. Populate
-          only when payable_by includes "sponsor".
-        range: Money
-        inlined: true
-        in_subset: [sow_spec, execution_tracking]
-        close_mappings:
-          - schema:price
-      prime_payable_values:
-        description: >-
-          Prime-payable amounts, broken out per organization. Populate
-          only when payable_by includes "prime".
-        range: OrgPayableValue
+          Datestamped budget snapshots for this subtask, covering the
+          proposed / awarded / working planning views as well as actual
+          and encumbrance execution views. Each entry is a snapshot in
+          time (as_of_date required), so the negotiation and amendment
+          history is captured by accumulating entries rather than
+          overwriting a single value. Replaces the v0.5.0
+          sponsor_payable_value / prime_payable_values slots: a
+          sponsor-payable subtask gets one or more entries with
+          payor=sponsor; a prime-payable subtask gets one entry per
+          organization with payor=prime + organization.
+        range: BudgetEntry
         multivalued: true
         inlined_as_list: true
         in_subset: [sow_spec, execution_tracking]
+        close_mappings:
+          - schema:price
       deliverables:
         description: >-
           Deliverables produced by this subtask. Required (one or more)
@@ -868,13 +945,30 @@ classes:
       - fibo_acc:MonetaryAmount
     attributes:
       planned_amount:
-        description: Planned payment amount on milestone acceptance.
+        description: >-
+          Headline planned payment amount on milestone acceptance.
+          The full datestamped budget history lives in budget_entries;
+          this slot is a convenience that should match the latest
+          working-budget entry.
         range: Money
         inlined: true
         in_subset: [sow_spec, execution_tracking]
-      basis:
-        description: How the payment is structured (fixed, percent_complete, etc.).
-        range: PaymentBasis
+      budget_entries:
+        description: >-
+          Datestamped budget snapshots for this payment obligation
+          (proposed / awarded / working / actual / encumbrance).
+        range: BudgetEntry
+        multivalued: true
+        inlined_as_list: true
+        in_subset: [sow_spec, execution_tracking]
+      cost_basis:
+        description: >-
+          Headline cost basis for this Payment (fixed_price,
+          cost_reimbursable, etc.). The per-organization detail lives
+          on budget_entries; this slot is a convenience that should
+          match the dominant cost basis across the latest working
+          entries.
+        range: CostBasis
         in_subset: [sow_spec, execution_tracking]
       payor:
         description: Which party owes the payable on milestone acceptance.
@@ -1092,27 +1186,146 @@ classes:
         close_mappings:
           - credit:writing-original-draft
 
-  OrgPayableValue:
+  BudgetEntry:
     description: >-
-      An organization-specific prime-payable amount, used to break the
-      prime-payable bucket out by participating organization.
+      One datestamped budget snapshot for a spending unit (TaskTeam,
+      Subtask, or Payment). Every entry captures: which view it
+      represents (proposed / awarded / working / actual / encumbrance),
+      the amount, the date the snapshot was recorded (version_date),
+      the accounting period it pertains to (accounting_date, on
+      actuals), the cost basis (fixed_price vs cost_reimbursable etc.),
+      the payor, and an optional organization breakdown.
+
+      Versioning is by accumulation: rather than overwrite a single
+      "working amount," each negotiation round / award modification /
+      monthly accounting close adds a new BudgetEntry. The "current"
+      view of any type is the latest version_date entry of that type.
+
+      version_date vs accounting_date matter most for actuals because
+      reconciliation takes time. Books for the period close on the
+      accounting_date (e.g. 2026-12-31 for Q4), but the figure isn't
+      reported until weeks later (the version_date — e.g. 2027-01-20)
+      because the close cycle is non-trivial. The same shape carries
+      restatements without ambiguity: a corrected Q4 figure reported in
+      March 2027 has accounting_date 2026-12-31 and version_date
+      2027-03-15. Both facts are preserved.
+
+      Cost basis lives at the entry level (not at Subtask or Payment)
+      so the common pattern where a prime is cost-reimbursable but
+      individual subs are fixed-price can be expressed natively: the
+      prime's working-budget entry carries cost_basis=cost_reimbursable
+      and each sub's working-budget entry carries cost_basis=fixed_price.
     close_mappings:
       - gist:Commitment
       - fibo_ctr:ContractualCommitment
+      - schema:price
     attributes:
-      organization:
-        description: The organization to which this payable value applies.
-        range: Organization
+      entry_type:
+        description: Which budget view this entry represents.
+        range: BudgetEntryType
         required: true
-        slot_uri: org:organization
         in_subset: [sow_spec, execution_tracking]
       amount:
-        description: The payable amount for this organization.
+        description: The amount, with currency.
         range: Money
         inlined: true
         required: true
         slot_uri: schema:price
         in_subset: [sow_spec, execution_tracking]
+      version_date:
+        description: >-
+          The date this entry was recorded / reported out. Required on
+          every entry. Every entry is a dated point, so the negotiation,
+          award, and execution history is captured by accumulating
+          entries rather than overwriting values; multiple entries of
+          the same entry_type with different version_dates represent the
+          chronological history of that view.
+
+          For actuals and encumbrance, version_date is when the snapshot
+          was actually reported — which lags the period close, because
+          reconciliation takes time. Example: books close 2026-12-31
+          (accounting_date) but the figure isn't reported until
+          2027-01-20 (version_date) because the close cycle takes three
+          weeks. Same two-date structure also accommodates restatements:
+          a corrected Q4 figure reported 2027-03-15 has accounting_date
+          2026-12-31 and version_date 2027-03-15.
+        range: date
+        required: true
+        in_subset: [sow_spec, execution_tracking]
+      accounting_date:
+        description: >-
+          The accounting period this entry pertains to — i.e. when the
+          books closed for the period the figures belong to. For
+          actuals, this is the period close date (e.g. "2026-12-31" for
+          Q4 2026 actuals); for encumbrance, the as-of date of the
+          encumbrance state. Distinct from version_date because
+          reconciliation lag, restatements, and audit corrections all
+          cause the report-out date to differ from the close date — and
+          both facts need to be preserved. Required on actual entries
+          (enforced by rule); optional otherwise.
+        range: date
+        in_subset: [sow_spec, execution_tracking]
+      cost_basis:
+        description: >-
+          Contractual cost-determination mechanism for this entry
+          (fixed_price, cost_reimbursable, time_and_materials, etc.).
+          Lives per-entry so prime and subs can carry different bases
+          within the same subtask.
+        range: CostBasis
+        in_subset: [sow_spec, execution_tracking]
+      payor:
+        description: Which party owes or paid this amount (sponsor or prime).
+        range: PayorParty
+        in_subset: [sow_spec, execution_tracking]
+      organization:
+        description: >-
+          Specific organization this entry breaks out, on multi-org
+          payable subtasks. Omit for totals not broken down by org.
+        range: Organization
+        slot_uri: org:organization
+        in_subset: [sow_spec, execution_tracking]
+      revision_label:
+        description: >-
+          Optional human label for this snapshot (e.g. "Initial
+          proposal", "Post-Q&A revision", "Mod 0001 awarded", "FY26 Q2
+          close"). Useful when there are many same-typed entries.
+        in_subset: [sow_spec, execution_tracking]
+      reporting_required:
+        description: >-
+          True iff this entry exists to satisfy a contractually-required
+          reporting obligation (typically: actuals on cost-reimbursable
+          awards, actuals on fixed-price awards where the sponsor still
+          mandates cost reporting, encumbrance reporting on a defined
+          cadence, etc.). Distinguishes contractually-mandated entries
+          from optional internal tracking. The full obligation detail —
+          cadence, template, recipient — lives in a corresponding
+          ReportingObligation on TaskTeam.obligations.
+        range: boolean
+        in_subset: [sow_spec, execution_tracking]
+      source_ref:
+        description: >-
+          Pointer to the document or accounting record this entry
+          derives from — a ChangeProposal IRI, an award-mod number, an
+          AP ledger entry, etc. Becomes the audit trail for the
+          snapshot.
+        in_subset: [sow_spec, execution_tracking]
+      notes:
+        description: Free-text annotation.
+        in_subset: [sow_spec, execution_tracking]
+    rules:
+      - title: actuals_require_accounting_date
+        description: >-
+          An actual entry must carry an accounting_date so the period the
+          actuals belong to is unambiguous (independent of when the
+          snapshot was recorded).
+        preconditions:
+          slot_conditions:
+            entry_type:
+              equals_string: actual
+        postconditions:
+          slot_conditions:
+            accounting_date:
+              required: true
 
   Money:
     description: A monetary amount with currency. Reuses schema:MonetaryAmount directly.
@@ -1231,16 +1444,84 @@ enums:
       closeout: {}
       other: {}
 
-  PaymentBasis:
-    description: How a milestone payment is structured.
-    enum_uri: core:PaymentBasisScheme
+  BudgetEntryType:
+    description: >-
+      Categories of financial snapshot recorded on a BudgetEntry.
+      Proposed / awarded / working are planning views (each carries
+      its own version history because negotiations and amendments
+      generate multiple snapshots before any single view is final);
+      actual and encumbrance are execution views.
+    enum_uri: core:BudgetEntryTypeScheme
     permissible_values:
-      fixed:
-        description: A single fixed amount on acceptance.
-      percent_complete:
-        description: Paid proportionally as percent_complete progresses.
-      cost_reimbursement:
-        description: Cost-reimbursement basis.
+      proposed:
+        description: >-
+          Amount the performer proposed at solicitation time.
+          May have multiple snapshots over a negotiation cycle.
+      awarded:
+        description: >-
+          Amount the sponsor formally awarded under the contract.
+          May have multiple snapshots if there are pre-execution
+          modifications.
+      working:
+        description: >-
+          Current authorized amount after modifications and change
+          orders. For un-modified contracts, equals awarded. Each
+          contract modification adds a new working snapshot.
+      actual:
+        description: >-
+          Cumulative amount actually paid / spent as of as_of_date.
+          Typically populated from the accounting system at each
+          monthly close. Required to be tracked even on fixed-price
+          awards whenever the sponsor's reporting obligations call for
+          it, independent of whether the actuals affect what gets paid.
+      encumbrance:
+        description: >-
+          Committed-but-not-yet-paid amount as of as_of_date — signed
+          POs, executed subcontracts, payroll commitments, etc.
+
+  CostBasis:
+    description: >-
+      Contractual cost-determination mechanism for a budget entry. The
+      legal mechanism by which the amount OWED is established and
+      validated. Lives per-BudgetEntry so a single subtask can mix
+      bases across orgs (e.g. cost-reimbursable prime with fixed-price
+      subs).
+
+      Important: cost_basis governs how the payment is determined, NOT
+      whether actual costs must be tracked or reported. Many fixed-price
+      awards still require the performer to track and report actual
+      costs — for audit, transparency, or future negotiations — even
+      though those actuals don't affect what gets paid. Actuals and
+      encumbrance BudgetEntries are independent of cost_basis. Mark
+      each contractually-required entry with `reporting_required: true`
+      (and capture the full reporting duty — cadence, template, recipient
+      — as a ReportingObligation on TaskTeam.obligations).
+    enum_uri: core:CostBasisScheme
+    permissible_values:
+      fixed_price:
+        description: >-
+          Firm-fixed-price (FFP). The amount is established at award
+          and does not depend on incurred costs. Performer bears cost
+          risk.
+      cost_reimbursable:
+        description: >-
+          Cost-reimbursable. The amount owed reflects actual allowable
+          costs incurred (typically plus a fee). Sponsor bears cost
+          risk.
+      cost_plus_fixed_fee:
+        description: Cost-reimbursable plus a pre-negotiated fixed fee (CPFF).
+      cost_plus_incentive_fee:
+        description: >-
+          Cost-reimbursable plus an incentive fee tied to
+          performance (CPIF).
+      time_and_materials:
+        description: >-
+          Time-and-materials (T&M) — labor at agreed rates, plus
+          materials at cost.
+      hybrid:
+        description: >-
+          Mixed-basis contracts (e.g. cost-reimbursable for research
+          tasks but fixed-price for deliverable production).
       other: {}
 
   PayorParty:

@@ -1,0 +1,3028 @@
+{
+    "$defs": {
+        "AcceptanceCriterion": {
+            "additionalProperties": false,
+            "description": "A single, testable condition for accepting a deliverable. Bundles the criterion statement with an optional verification method and rationale, so review and audit can resolve each criterion independently.",
+            "properties": {
+                "rationale": {
+                    "description": "Why this criterion was chosen.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "statement": {
+                    "description": "The acceptance condition expressed as a single, checkable statement.",
+                    "type": "string"
+                },
+                "verification_method": {
+                    "description": "How the criterion will be checked (e.g. \"test suite green\", \"editorial review\", \"demo accepted by sponsor\").",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "statement"
+            ],
+            "title": "AcceptanceCriterion",
+            "type": "object"
+        },
+        "Activity": {
+            "additionalProperties": false,
+            "description": "An event-type deliverable (training, workshop, presentation).",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "activity_date": {
+                    "description": "Date the activity was held.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "attendee_count": {
+                    "description": "Number of attendees (recorded post-event).",
+                    "minimum": 0,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "Activity"
+                    ],
+                    "type": "string"
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "location": {
+                    "description": "Location (physical or virtual) of the activity.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Activity",
+            "type": "object"
+        },
+        "Approval": {
+            "additionalProperties": false,
+            "description": "Signoff on a specific version of a SOW element.",
+            "properties": {
+                "approved_on": {
+                    "description": "Date the approval was recorded.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "approver": {
+                    "description": "The person signing off.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "party": {
+                    "description": "Party the approver is signing on behalf of.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "signed_artifact_uri": {
+                    "description": "Pointer to the executed envelope (DocuSign, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_class": {
+                    "description": "Class of the target (Task, Subtask, Milestone, Deliverable, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_id": {
+                    "description": "ID of the element being approved.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_version": {
+                    "description": "pav:version of the target at time of approval.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "Approval",
+            "type": "object"
+        },
+        "BudgetEntry": {
+            "additionalProperties": false,
+            "description": "One datestamped budget snapshot for a spending unit (TaskTeam, Subtask, or Payment). Every entry captures: which view it represents (proposed / awarded / working / actual / encumbrance), the amount, the date the snapshot was recorded (version_date), the accounting period it pertains to (accounting_date, on actuals), the cost basis (fixed_price vs cost_reimbursable etc.), the payor, and an optional organization breakdown.\nVersioning is by accumulation: rather than overwrite a single \"working amount,\" each negotiation round / award modification / monthly accounting close adds a new BudgetEntry. The \"current\" view of any type is the latest version_date entry of that type.\nversion_date vs accounting_date matter most for actuals because reconciliation takes time. Books for the period close on the accounting_date (e.g. 2026-12-31 for Q4), but the figure isn't reported until weeks later (the version_date \u2014 e.g. 2027-01-20) because the close cycle is non-trivial. The same shape carries restatements without ambiguity: a corrected Q4 figure reported in March 2027 has accounting_date 2026-12-31 and version_date 2027-03-15. Both facts are preserved.\nCost basis lives at the entry level (not at Subtask or Payment) so the common pattern where a prime is cost-reimbursable but individual subs are fixed-price can be expressed natively: the prime's working-budget entry carries cost_basis=cost_reimbursable and each sub's working-budget entry carries cost_basis=fixed_price.",
+            "if": {
+                "properties": {
+                    "entry_type": {
+                        "const": "actual"
+                    }
+                },
+                "required": [
+                    "entry_type"
+                ]
+            },
+            "properties": {
+                "accounting_date": {
+                    "description": "The accounting period this entry pertains to \u2014 i.e. when the books closed for the period the figures belong to. For actuals, this is the period close date (e.g. \"2026-12-31\" for Q4 2026 actuals); for encumbrance, the as-of date of the encumbrance state. Distinct from version_date because reconciliation lag, restatements, and audit corrections all cause the report-out date to differ from the close date \u2014 and both facts need to be preserved. Required on actual entries (enforced by rule); optional otherwise.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "amount": {
+                    "$ref": "#/$defs/Money",
+                    "description": "The amount, with currency."
+                },
+                "cost_basis": {
+                    "$ref": "#/$defs/CostBasis",
+                    "description": "Contractual cost-determination mechanism for this entry (fixed_price, cost_reimbursable, time_and_materials, etc.). Lives per-entry so prime and subs can carry different bases within the same subtask."
+                },
+                "entry_type": {
+                    "$ref": "#/$defs/BudgetEntryType",
+                    "description": "Which budget view this entry represents."
+                },
+                "notes": {
+                    "description": "Free-text annotation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "organization": {
+                    "description": "Specific organization this entry breaks out, on multi-org payable subtasks. Omit for totals not broken down by org.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "payor": {
+                    "$ref": "#/$defs/PayorParty",
+                    "description": "Which party owes or paid this amount (sponsor or prime)."
+                },
+                "reporting_required": {
+                    "description": "True iff this entry exists to satisfy a contractually-required reporting obligation (typically: actuals on cost-reimbursable awards, actuals on fixed-price awards where the sponsor still mandates cost reporting, encumbrance reporting on a defined cadence, etc.). Distinguishes contractually-mandated entries from optional internal tracking. The full obligation detail \u2014 cadence, template, recipient \u2014 lives in a corresponding ReportingObligation on TaskTeam.obligations.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "revision_label": {
+                    "description": "Optional human label for this snapshot (e.g. \"Initial proposal\", \"Post-Q&A revision\", \"Mod 0001 awarded\", \"FY26 Q2 close\"). Useful when there are many same-typed entries.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "source_ref": {
+                    "description": "Pointer to the document or accounting record this entry derives from \u2014 a ChangeProposal IRI, an award-mod number, an AP ledger entry, etc. Becomes the audit trail for the snapshot.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version_date": {
+                    "description": "The date this entry was recorded / reported out. Required on every entry. Every entry is a dated point, so the negotiation, award, and execution history is captured by accumulating entries rather than overwriting values; multiple entries of the same entry_type with different version_dates represent the chronological history of that view.\nFor actuals and encumbrance, version_date is when the snapshot was actually reported \u2014 which lags the period close, because reconciliation takes time. Example: books close 2026-12-31 (accounting_date) but the figure isn't reported until 2027-01-20 (version_date) because the close cycle takes three weeks. Same two-date structure also accommodates restatements: a corrected Q4 figure reported 2027-03-15 has accounting_date 2026-12-31 and version_date 2027-03-15.",
+                    "format": "date",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "entry_type",
+                "amount",
+                "version_date"
+            ],
+            "then": {
+                "properties": {
+                    "accounting_date": {}
+                },
+                "required": [
+                    "accounting_date"
+                ]
+            },
+            "title": "BudgetEntry",
+            "type": "object"
+        },
+        "BudgetEntryType": {
+            "description": "Categories of financial snapshot recorded on a BudgetEntry. Proposed / awarded / working are planning views (each carries its own version history because negotiations and amendments generate multiple snapshots before any single view is final); actual and encumbrance are execution views.",
+            "enum": [
+                "proposed",
+                "awarded",
+                "working",
+                "actual",
+                "encumbrance"
+            ],
+            "title": "BudgetEntryType",
+            "type": "string"
+        },
+        "Change": {
+            "additionalProperties": false,
+            "description": "A single element-level edit within a ChangeProposal.",
+            "properties": {
+                "after": {
+                    "description": "Snapshot of the element after the change (null for removes).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "basis": {
+                    "description": "Free-text rationale for this specific change.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "before": {
+                    "description": "Snapshot of the element before the change (null for adds).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "change_kind": {
+                    "$ref": "#/$defs/ChangeKind",
+                    "description": "Kind of element-level edit."
+                },
+                "id": {
+                    "type": "string"
+                },
+                "section_ref": {
+                    "description": "Section under change control, if scoped narrower than the full element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_class": {
+                    "description": "Class of the target (Task, Subtask, Milestone, Deliverable, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_id": {
+                    "description": "ID of the element being changed.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_version": {
+                    "description": "pav:version of the target at time of the change.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "change_kind"
+            ],
+            "title": "Change",
+            "type": "object"
+        },
+        "ChangeKind": {
+            "description": "Kind of element-level edit within a ChangeProposal.",
+            "enum": [
+                "add",
+                "modify",
+                "remove",
+                "rename",
+                "move"
+            ],
+            "title": "ChangeKind",
+            "type": "string"
+        },
+        "ChangeProposal": {
+            "additionalProperties": false,
+            "description": "A bundled set of element-level Changes against a base SOW version, analogous to a GitHub pull request. Approvals against this proposal promote the merged_version to current.",
+            "properties": {
+                "base_version": {
+                    "description": "Version of the SOW this proposal targets.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "changes": {
+                    "description": "Element-level changes bundled in this proposal.",
+                    "items": {
+                        "$ref": "#/$defs/Change"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "merged_on": {
+                    "description": "Date the proposal was merged.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "merged_version": {
+                    "description": "Resulting SOW semver after merge.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "proposed_by": {
+                    "description": "Author of the proposal.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "proposed_on": {
+                    "description": "Date the proposal was opened.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "signed_artifact_uri": {
+                    "description": "Pointer to the executed envelope (DocuSign, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "status": {
+                    "$ref": "#/$defs/ChangeProposalStatus",
+                    "description": "Lifecycle of this proposal (open, merged, closed, etc.)."
+                }
+            },
+            "required": [
+                "status",
+                "id",
+                "name"
+            ],
+            "title": "ChangeProposal",
+            "type": "object"
+        },
+        "ChangeProposalStatus": {
+            "description": "Lifecycle of a change proposal (\u2248 GitHub PR).",
+            "enum": [
+                "open",
+                "approved",
+                "merged",
+                "closed",
+                "withdrawn"
+            ],
+            "title": "ChangeProposalStatus",
+            "type": "string"
+        },
+        "ContractualStatus": {
+            "description": "Where this element sits in the contract lifecycle.",
+            "enum": [
+                "draft",
+                "proposed",
+                "approved",
+                "executed",
+                "accepted",
+                "paid",
+                "superseded",
+                "cancelled"
+            ],
+            "title": "ContractualStatus",
+            "type": "string"
+        },
+        "Contribution": {
+            "additionalProperties": false,
+            "description": "Contributor role on a deliverable, CRediT-aligned where applicable.",
+            "properties": {
+                "contributor": {
+                    "description": "Person who made the contribution.",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "CRediT contributor role (e.g. \"writing - original draft\").",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "contributor"
+            ],
+            "title": "Contribution",
+            "type": "object"
+        },
+        "Core": {
+            "additionalProperties": false,
+            "description": "Foundational base class for every addressable Collabri element. Provides id / name / description. Renamed from sow's \"NamedThing\" to match the Collabri-core schema name.",
+            "properties": {
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "Core",
+            "type": "object"
+        },
+        "CostBasis": {
+            "description": "Contractual cost-determination mechanism for a budget entry. The legal mechanism by which the amount OWED is established and validated. Lives per-BudgetEntry so a single subtask can mix bases across orgs (e.g. cost-reimbursable prime with fixed-price subs).\nImportant: cost_basis governs how the payment is determined, NOT whether actual costs must be tracked or reported. Many fixed-price awards still require the performer to track and report actual costs \u2014 for audit, transparency, or future negotiations \u2014 even though those actuals don't affect what gets paid. Actuals and encumbrance BudgetEntries are independent of cost_basis. Mark each contractually-required entry with `reporting_required: true` (and capture the full reporting duty \u2014 cadence, template, recipient \u2014 as a ReportingObligation on TaskTeam.obligations).",
+            "enum": [
+                "fixed_price",
+                "cost_reimbursable",
+                "cost_plus_fixed_fee",
+                "cost_plus_incentive_fee",
+                "time_and_materials",
+                "hybrid",
+                "other"
+            ],
+            "title": "CostBasis",
+            "type": "string"
+        },
+        "Data": {
+            "additionalProperties": false,
+            "description": "A dataset, spreadsheet, or other structured-data artifact.",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "Data"
+                    ],
+                    "type": "string"
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "distribution_url": {
+                    "description": "URL where the dataset is distributed.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "record_count": {
+                    "description": "Number of records in the dataset.",
+                    "minimum": 0,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Data",
+            "type": "object"
+        },
+        "Deliverable": {
+            "additionalProperties": false,
+            "description": "A concrete, acceptance-bearing output owed for a payable subtask. Abstract base \u2014 instantiate one of the typed subclasses (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "Deliverable"
+                    ],
+                    "type": "string"
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Deliverable",
+            "type": "object"
+        },
+        "Method": {
+            "additionalProperties": false,
+            "description": "A method deliverable, modeled as a prov:Plan.",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "Method"
+                    ],
+                    "type": "string"
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "protocol_url": {
+                    "description": "URL where the method/protocol is documented.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Method",
+            "type": "object"
+        },
+        "Metric": {
+            "additionalProperties": false,
+            "description": "A measurable indicator used to evaluate a deliverable, together with the rationale for why this specific metric was selected. The Metric may carry a verbatim free-text statement (metric_text) when the SOW source has not yet broken metrics down into structured fields.",
+            "properties": {
+                "actual_value": {
+                    "description": "The observed / current value, when known.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "metric_text": {
+                    "description": "Free-text fallback carrying the metric's verbatim statement from the source SOW, when the metric is not yet broken into structured name/target/unit fields.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "Short name of the metric.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "rationale": {
+                    "description": "Per-metric rationale: why this specific metric was chosen and how it evidences successful delivery.",
+                    "type": "string"
+                },
+                "target_value": {
+                    "description": "The target value to be achieved.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "unit": {
+                    "description": "Unit of measure for the target and actual values.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "rationale"
+            ],
+            "title": "Metric",
+            "type": "object"
+        },
+        "Milestone": {
+            "additionalProperties": false,
+            "description": "A milestone groups subtasks (linked via Subtask.milestone) and triggers contractual events such as payment on acceptance.",
+            "properties": {
+                "achieved_date": {
+                    "description": "Date the milestone was achieved.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "decision": {
+                    "description": "For decision-type milestones (e.g. go/no-go gates), the recorded decision outcome.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "milestone_type": {
+                    "$ref": "#/$defs/MilestoneType",
+                    "description": "Kind of milestone event."
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "payment": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Payment"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Optional payment obligation triggered by milestone acceptance."
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_date": {
+                    "description": "Target calendar date for this milestone.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "target_month": {
+                    "description": "Target month (since program start) for this milestone.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Milestone",
+            "type": "object"
+        },
+        "MilestoneType": {
+            "description": "Kind of milestone event.",
+            "enum": [
+                "delivery",
+                "decision",
+                "payment",
+                "review",
+                "reporting",
+                "kickoff",
+                "closeout",
+                "other"
+            ],
+            "title": "MilestoneType",
+            "type": "string"
+        },
+        "Money": {
+            "additionalProperties": false,
+            "description": "A monetary amount with currency. Reuses schema:MonetaryAmount directly.",
+            "properties": {
+                "currency": {
+                    "description": "ISO 4217 currency code.",
+                    "pattern": "^[A-Z]{3}$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "value": {
+                    "description": "The numeric amount.",
+                    "minimum": 0,
+                    "type": "number"
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "title": "Money",
+            "type": "object"
+        },
+        "NarrativeDocument": {
+            "additionalProperties": false,
+            "description": "Policy, SOP, report, recommendation, publication, progress-report blurb, etc. Subtype distinguishes the kind of narrative document.",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "NarrativeDocument"
+                    ],
+                    "type": "string"
+                },
+                "collabri_doc_id": {
+                    "description": "Controlled-document identifier in Collabri.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "distribution_url": {
+                    "description": "URL where the document is published.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "narrative_type": {
+                    "$ref": "#/$defs/NarrativeDocumentType",
+                    "description": "Subtype of narrative document."
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "NarrativeDocument",
+            "type": "object"
+        },
+        "NarrativeDocumentType": {
+            "description": "Subtype of a narrative-document deliverable.",
+            "enum": [
+                "progress_report",
+                "final_report",
+                "technical_report",
+                "policy",
+                "sop",
+                "recommendation",
+                "publication",
+                "plan",
+                "memo",
+                "other"
+            ],
+            "title": "NarrativeDocumentType",
+            "type": "string"
+        },
+        "Objective": {
+            "additionalProperties": false,
+            "description": "The aim of a subtask \u2014 a single statement of what success means for this chunk of work. Sibling to Deliverable on Subtask: Objective is the intent (outcome), Deliverable is the artifact (output) that fulfills it.",
+            "properties": {
+                "notes": {
+                    "description": "Optional free-text notes (e.g. alignment to program goals, scope clarifications).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "statement": {
+                    "description": "The objective expressed as a single, declarative aim. Should describe outcome, not artifact.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "statement"
+            ],
+            "title": "Objective",
+            "type": "object"
+        },
+        "Obligation": {
+            "additionalProperties": false,
+            "description": "Abstract base for any contractual duty (ODRL pattern). Concrete subclasses model payment, reporting cadence, etc.",
+            "properties": {
+                "action": {
+                    "description": "ODRL action term or local action label (e.g. \"report\", \"deliver\", \"pay\").",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "assignee": {
+                    "description": "Party bound by the obligation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "assigner": {
+                    "description": "Party imposing the obligation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "obligation_class": {
+                    "description": "Discriminator for the concrete Obligation subclass.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "terms_ref": {
+                    "description": "Pointer to the governing contract clause.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "Obligation",
+            "type": "object"
+        },
+        "OrgType": {
+            "description": "The role an organization plays in the program.",
+            "enum": [
+                "prime",
+                "subcontractor",
+                "sponsor",
+                "government",
+                "performer",
+                "other"
+            ],
+            "title": "OrgType",
+            "type": "string"
+        },
+        "Organization": {
+            "additionalProperties": false,
+            "description": "An organization participating in the SOW.",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Legal or common name.",
+                    "type": "string"
+                },
+                "org_type": {
+                    "$ref": "#/$defs/OrgType",
+                    "description": "The organization's role in the program."
+                },
+                "ror_id": {
+                    "description": "ROR identifier for the organization, if available.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "Organization",
+            "type": "object"
+        },
+        "Party": {
+            "additionalProperties": false,
+            "description": "A role-bearing entity in the contract (Organization or Person wrapped with a contract role).",
+            "properties": {
+                "agent": {
+                    "description": "The Organization or Person playing the party role.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/$defs/OrgType",
+                    "description": "Contract role (sponsor, prime, subcontractor, performer, etc.)."
+                }
+            },
+            "required": [
+                "agent",
+                "id",
+                "name"
+            ],
+            "title": "Party",
+            "type": "object"
+        },
+        "PayerType": {
+            "description": "A party that owes payment on milestone acceptance.",
+            "enum": [
+                "sponsor",
+                "prime"
+            ],
+            "title": "PayerType",
+            "type": "string"
+        },
+        "Payment": {
+            "additionalProperties": false,
+            "description": "Payment obligation tied to milestone acceptance.",
+            "properties": {
+                "action": {
+                    "description": "ODRL action term or local action label (e.g. \"report\", \"deliver\", \"pay\").",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "assignee": {
+                    "description": "Party bound by the obligation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "assigner": {
+                    "description": "Party imposing the obligation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "budget_entries": {
+                    "description": "Datestamped budget snapshots for this payment obligation (proposed / awarded / working / actual / encumbrance).",
+                    "items": {
+                        "$ref": "#/$defs/BudgetEntry"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "cost_basis": {
+                    "$ref": "#/$defs/CostBasis",
+                    "description": "Headline cost basis for this Payment (fixed_price, cost_reimbursable, etc.). The per-organization detail lives on budget_entries; this slot is a convenience that should match the dominant cost basis across the latest working entries."
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "obligation_class": {
+                    "description": "Discriminator for the concrete Obligation subclass.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "payor": {
+                    "$ref": "#/$defs/PayorParty",
+                    "description": "Which party owes the payable on milestone acceptance."
+                },
+                "planned_amount": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Money"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Headline planned payment amount on milestone acceptance. The full datestamped budget history lives in budget_entries; this slot is a convenience that should match the latest working-budget entry."
+                },
+                "terms_ref": {
+                    "description": "Pointer to the governing contract clause.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "Payment",
+            "type": "object"
+        },
+        "PayorParty": {
+            "description": "Which party owes the payable on milestone acceptance.",
+            "enum": [
+                "sponsor",
+                "prime"
+            ],
+            "title": "PayorParty",
+            "type": "string"
+        },
+        "PerformanceStatus": {
+            "description": "Execution state, orthogonal to ContractualStatus.",
+            "enum": [
+                "not_started",
+                "in_progress",
+                "at_risk",
+                "blocked",
+                "completed"
+            ],
+            "title": "PerformanceStatus",
+            "type": "string"
+        },
+        "Person": {
+            "additionalProperties": false,
+            "description": "A person who can be assigned as a lead or contributor.",
+            "properties": {
+                "affiliation": {
+                    "description": "The organization this person belongs to.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "email": {
+                    "description": "Contact email.",
+                    "pattern": "^\\S+@\\S+\\.\\S+$",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Full name.",
+                    "type": "string"
+                },
+                "orcid": {
+                    "description": "ORCID identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "Person",
+            "type": "object"
+        },
+        "ProgramType": {
+            "description": "Funding mechanism for the contract.",
+            "enum": [
+                "cooperative_agreement",
+                "contract",
+                "grant",
+                "other_transaction_authority",
+                "bridge",
+                "other"
+            ],
+            "title": "ProgramType",
+            "type": "string"
+        },
+        "ReportingObligation": {
+            "additionalProperties": false,
+            "description": "Recurring reporting duty (quarterly progress report, annual technical report, etc.).",
+            "properties": {
+                "action": {
+                    "description": "ODRL action term or local action label (e.g. \"report\", \"deliver\", \"pay\").",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "assignee": {
+                    "description": "Party bound by the obligation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "assigner": {
+                    "description": "Party imposing the obligation.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "cadence": {
+                    "description": "Reporting cadence (e.g. \"quarterly\", \"annually\").",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "first_due": {
+                    "description": "First due-month for the recurring report.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "obligation_class": {
+                    "description": "Discriminator for the concrete Obligation subclass.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "template_uri": {
+                    "description": "Pointer to the required reporting template, if any.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "terms_ref": {
+                    "description": "Pointer to the governing contract clause.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "name"
+            ],
+            "title": "ReportingObligation",
+            "type": "object"
+        },
+        "Software": {
+            "additionalProperties": false,
+            "description": "A software deliverable (source code, library, release).",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "Software"
+                    ],
+                    "type": "string"
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "repository_url": {
+                    "description": "URL of the source repository.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "software_license": {
+                    "description": "License under which the software is distributed.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Software",
+            "type": "object"
+        },
+        "Standard": {
+            "additionalProperties": false,
+            "description": "A normative or internal standard, classified by subtype.",
+            "properties": {
+                "acceptance_criteria": {
+                    "description": "The condition(s) that must be met for this deliverable to be accepted. Required at 1.0; structured list of testable AcceptanceCriterion.",
+                    "items": {
+                        "$ref": "#/$defs/AcceptanceCriterion"
+                    },
+                    "type": "array"
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "category": {
+                    "description": "Discriminator naming the concrete Deliverable subclass for this instance. Required because Deliverable is abstract; every instance must declare which typed subclass it is (Activity, Data, Method, NarrativeDocument, Software, Standard).",
+                    "enum": [
+                        "Standard"
+                    ],
+                    "type": "string"
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "contributors": {
+                    "description": "Per-deliverable contributor roles (CRediT-aligned).",
+                    "items": {
+                        "$ref": "#/$defs/Contribution"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "delivered_date": {
+                    "description": "Date the deliverable was actually delivered.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Optional deliverable-specific due month. If absent, the parent subtask's due_month governs.",
+                    "minimum": 1,
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                },
+                "format": {
+                    "description": "Delivery format (PDF, repository, briefing, etc.).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "metrics": {
+                    "description": "The metric(s) by which this deliverable is evaluated.",
+                    "items": {
+                        "$ref": "#/$defs/Metric"
+                    },
+                    "type": "array"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "standard_body": {
+                    "description": "Organization stewarding the standard, if external.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "standard_subtype": {
+                    "$ref": "#/$defs/StandardSubtype",
+                    "description": "Kind of standard (ADMS-aligned)."
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "category",
+                "acceptance_criteria",
+                "metrics",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Standard",
+            "type": "object"
+        },
+        "StandardSubtype": {
+            "description": "Kinds of standards, ADMS-aligned where applicable.",
+            "enum": [
+                "data_standard",
+                "controlled_vocabulary",
+                "schema",
+                "methodology",
+                "reporting_standard",
+                "other"
+            ],
+            "title": "StandardSubtype",
+            "type": "string"
+        },
+        "Subtask": {
+            "additionalProperties": false,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "payable_by": {
+                                "items": {},
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "payable_by"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "deliverables": {
+                                "items": {},
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "deliverables"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "contractual_status": {
+                                "enum": [
+                                    "accepted",
+                                    "paid"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "contractual_status"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "payable_by": {
+                                "items": {},
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "payable_by"
+                        ]
+                    }
+                }
+            ],
+            "description": "A step toward completion of a Task. Subtasks nest recursively to arbitrary depth and are owned by exactly one TaskTeam (no shared ownership). Each subtask may be sponsor- and/or prime-payable; payment is triggered by acceptance of the referenced Milestone.\nModeling note: Objective and Deliverable are deliberately distinct siblings on Subtask. Objective is the *aim* of the work; Deliverable is the *artifact* that fulfills the aim. Deliverable descriptions should not restate the objective.",
+            "properties": {
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "budget_entries": {
+                    "description": "Datestamped budget snapshots for this subtask, covering the proposed / awarded / working planning views as well as actual and encumbrance execution views. Each entry is a snapshot in time (as_of_date required), so the negotiation and amendment history is captured by accumulating entries rather than overwriting a single value. Replaces the v0.5.0 sponsor_payable_value / prime_payable_values slots: a sponsor-payable subtask gets one or more entries with payor=sponsor; a prime-payable subtask gets one entry per organization with payor=prime + organization.",
+                    "items": {
+                        "$ref": "#/$defs/BudgetEntry"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "deliverables": {
+                    "description": "Deliverables produced by this subtask. Required (one or more) when the subtask is sponsor- or prime-payable.",
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/$defs/Activity"
+                            },
+                            {
+                                "$ref": "#/$defs/Data"
+                            },
+                            {
+                                "$ref": "#/$defs/Method"
+                            },
+                            {
+                                "$ref": "#/$defs/NarrativeDocument"
+                            },
+                            {
+                                "$ref": "#/$defs/Software"
+                            },
+                            {
+                                "$ref": "#/$defs/Standard"
+                            }
+                        ]
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "depends_on": {
+                    "description": "Other subtasks that must complete before this one can proceed.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "due_month": {
+                    "description": "Due date expressed as a whole number of months since program start. Required at the subtask level.",
+                    "minimum": 1,
+                    "type": "integer"
+                },
+                "end_date": {
+                    "description": "Calendar end date for this subtask. Optional; defaults are derived from due_month and TaskTeam.period_of_performance_start.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "lead_org": {
+                    "description": "The organization accountable for delivering this subtask.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "leads": {
+                    "description": "The person or people leading this subtask.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "milestone": {
+                    "description": "Milestone whose acceptance gates contractual events (e.g. payment) for this subtask. Referenced by id; the Milestone itself is defined on TaskTeam.milestones.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "objective": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Objective"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "The aim of this subtask \u2014 what success looks like, expressed once, independent of any specific deliverable. Optional but strongly encouraged: setting it explicitly is what prevents the 90%-overlap-with-deliverable failure mode."
+                },
+                "payable_by": {
+                    "description": "Which parties owe payment on acceptance of the milestone gating this subtask. Absent or empty means non-payable. Include \"sponsor\" for sponsor-payable, \"prime\" for prime-payable, or both. The MUST rule that payable subtasks require a deliverable is machine-enforced through this enum slot.",
+                    "items": {
+                        "$ref": "#/$defs/PayerType"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "percent_complete": {
+                    "description": "For partial-completion payable subtasks (e.g. reports paid in stages), the current percent complete against the subtask's scope.",
+                    "maximum": 100,
+                    "minimum": 0,
+                    "type": [
+                        "number",
+                        "null"
+                    ]
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "start_date": {
+                    "description": "Calendar start date for this subtask. Optional; defaults are derived from due_month and TaskTeam.period_of_performance_start.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subtasks": {
+                    "description": "Nested sub-subtasks (arbitrary depth).",
+                    "items": {
+                        "$ref": "#/$defs/Subtask"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "due_month",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Subtask",
+            "type": "object"
+        },
+        "Task": {
+            "additionalProperties": false,
+            "description": "Thematic bucket of work, possibly spanning the full award.",
+            "properties": {
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "end_date": {
+                    "description": "Calendar end date of this task (optional; otherwise derived from subtasks).",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "spans_full_award": {
+                    "description": "True if the task spans the entire period of performance.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "start_date": {
+                    "description": "Calendar start date of this task (optional; otherwise derived from subtasks).",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subtasks": {
+                    "description": "Subtasks belonging to this task.",
+                    "items": {
+                        "$ref": "#/$defs/Subtask"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "Task",
+            "type": "object"
+        },
+        "TaskTeam": {
+            "additionalProperties": false,
+            "description": "Root of a Statement of Work, scoped to a single contract. A TaskTeam owns its tasks (and via them, subtasks), milestones, obligations, and change proposals. \"WorkStream\" and \"task team\" are recorded as exact-synonym aliases.\nLifecycle linkage: a TaskTeam is the post-award realization of an upstream Proposal Intent record (see https://w3id.org/tislab/ proposal-intent/core). The optional `proposal` slot is a uriorcurie foreign key back to pi:Proposal.id, and the optional `proposal_segment` slot labels which slice of that proposal this TaskTeam realizes \u2014 because a single Proposal commonly spans multiple task areas, aims, or work packages, each of which becomes its own TaskTeam at award time (Proposal 1 : N TaskTeam). Proposal Intent captures the pre-award shape \u2014 sponsor, funding opportunity, deadlines, PI roster, subaward intentions \u2014 and Collabri Core picks up at award execution. Loose-coupling by FK keeps the two vocabularies independent: institution-specific extensions of Proposal Intent (UNC, US-federal, etc.) evolve without dragging Collabri Core, and conversely.",
+            "properties": {
+                "approvals": {
+                    "description": "Signoffs against versions of SOW elements.",
+                    "items": {
+                        "$ref": "#/$defs/Approval"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "award_id": {
+                    "description": "Sponsor award or contract identifier.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "budget_entries": {
+                    "description": "Contract-level datestamped budget snapshots. Captures the proposed / awarded / working planning history and the actual / encumbrance execution view at the contract total level.",
+                    "items": {
+                        "$ref": "#/$defs/BudgetEntry"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "change_proposals": {
+                    "description": "Open and historical change proposals against this SOW.",
+                    "items": {
+                        "$ref": "#/$defs/ChangeProposal"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "contract_value": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Money"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Headline contract value for convenience. The detailed, datestamped breakdown lives in budget_entries; contract_value should match the latest working-budget entry's headline total."
+                },
+                "contracting_parties": {
+                    "description": "All parties to the contract with their roles.",
+                    "items": {
+                        "$ref": "#/$defs/Party"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "description": {
+                    "description": "Narrative description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Stable identifier; together with version forms the element IRI.",
+                    "type": "string"
+                },
+                "milestones": {
+                    "description": "Milestones defined at the SOW level (referenced by subtasks).",
+                    "items": {
+                        "$ref": "#/$defs/Milestone"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "Human-readable name.",
+                    "type": "string"
+                },
+                "obligations": {
+                    "description": "Non-payment obligations attached at the SOW level (reporting cadence, data-sharing duties, etc.).",
+                    "items": {
+                        "$ref": "#/$defs/Obligation"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "organizations": {
+                    "description": "All organizations participating in the SOW.",
+                    "items": {
+                        "$ref": "#/$defs/Organization"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                },
+                "period_of_performance_start": {
+                    "description": "Calendar date on which program month 1 begins. Anchor for converting due_month values to absolute calendar dates.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "persons": {
+                    "description": "All people referenced anywhere in the SOW.",
+                    "items": {
+                        "$ref": "#/$defs/Person"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "prime": {
+                    "description": "Prime contractor under this contract.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "program_type": {
+                    "$ref": "#/$defs/ProgramType",
+                    "description": "Funding mechanism for the contract."
+                },
+                "proposal": {
+                    "description": "Foreign key to the upstream Proposal Intent record this contract derives from (pi:Proposal.id in the institution- agnostic Proposal Intent Core schema, https://w3id.org/tislab/ proposal-intent/core). Proposal Intent captures the pre-award information \u2014 sponsor, funding opportunity, PI roster, deadlines, subaward intentions \u2014 that becomes the working contract scope when awarded. Loose coupling by uriorcurie rather than inlining: the proposal and the TaskTeam live in different schemas and evolve independently, but link referentially so a contract instance can be traced back to its proposal of record.\nCardinality is Proposal 1 : N TaskTeam. A single proposal commonly spans multiple task areas (a DARPA TA1/TA2/TA3 BAA, an NIH multi-aim grant, a multi-PI award with separable subscopes) and each awarded slice becomes its own TaskTeam. Use proposal_segment to label which slice this TaskTeam realizes.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "proposal_segment": {
+                    "description": "Identifier of the slice of the upstream proposal this TaskTeam realizes. Used when a single Proposal yields multiple TaskTeams (multi-TA BAAs, multi-aim grants, multi-PI awards). Free-text by convention \u2014 typical values are domain-specific strings the proposal itself used: \"TA1\", \"TA2\", \"Aim 1\", \"Aim 2\", \"Work Package C\", \"Subproject A\". Becomes a uriorcurie when the upstream Proposal Intent schema starts modelling task areas / aims as structured entries; for now it stays a string so it can carry whatever the proposal said.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "sponsor": {
+                    "description": "Sponsor under this contract.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "tasks": {
+                    "description": "Tasks (thematic buckets) that make up this SOW.",
+                    "items": {
+                        "$ref": "#/$defs/Task"
+                    },
+                    "type": "array"
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "required": [
+                "tasks",
+                "contractual_status",
+                "id",
+                "name"
+            ],
+            "title": "TaskTeam",
+            "type": "object"
+        },
+        "Trackable": {
+            "additionalProperties": false,
+            "description": "Mixin: dual-axis status. ContractualStatus tracks where the element sits in the contract lifecycle (draft, approved, executed, etc.); PerformanceStatus tracks the orthogonal execution state (in progress, blocked, at risk, completed). The two axes never collapse.",
+            "properties": {
+                "contractual_status": {
+                    "$ref": "#/$defs/ContractualStatus",
+                    "description": "Where this element sits in the contract lifecycle."
+                },
+                "performance_status": {
+                    "$ref": "#/$defs/PerformanceStatus",
+                    "description": "Execution state, orthogonal to contractual_status."
+                }
+            },
+            "required": [
+                "contractual_status"
+            ],
+            "title": "Trackable",
+            "type": "object"
+        },
+        "Versioned": {
+            "additionalProperties": false,
+            "description": "Mixin: per-element version metadata, aligned with PAV and PROV. Element IRI is `<id>/<version>` and an element may have multiple version-snapshots that share an `id`.",
+            "properties": {
+                "authored_by": {
+                    "description": "Author(s) of this version snapshot.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": [
+                        "array",
+                        "null"
+                    ]
+                },
+                "created_on": {
+                    "description": "Date this version snapshot was created.",
+                    "format": "date",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "current_version": {
+                    "description": "True iff this is the current accepted version of the element.",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "previous_version": {
+                    "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "description": "Semantic version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            },
+            "title": "Versioned",
+            "type": "object"
+        }
+    },
+    "$id": "https://w3id.org/collabri/core",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": true,
+    "description": "Root of a Statement of Work, scoped to a single contract. A TaskTeam owns its tasks (and via them, subtasks), milestones, obligations, and change proposals. \"WorkStream\" and \"task team\" are recorded as exact-synonym aliases.\nLifecycle linkage: a TaskTeam is the post-award realization of an upstream Proposal Intent record (see https://w3id.org/tislab/ proposal-intent/core). The optional `proposal` slot is a uriorcurie foreign key back to pi:Proposal.id, and the optional `proposal_segment` slot labels which slice of that proposal this TaskTeam realizes \u2014 because a single Proposal commonly spans multiple task areas, aims, or work packages, each of which becomes its own TaskTeam at award time (Proposal 1 : N TaskTeam). Proposal Intent captures the pre-award shape \u2014 sponsor, funding opportunity, deadlines, PI roster, subaward intentions \u2014 and Collabri Core picks up at award execution. Loose-coupling by FK keeps the two vocabularies independent: institution-specific extensions of Proposal Intent (UNC, US-federal, etc.) evolve without dragging Collabri Core, and conversely.",
+    "metamodel_version": "1.11.0",
+    "properties": {
+        "approvals": {
+            "description": "Signoffs against versions of SOW elements.",
+            "items": {
+                "$ref": "#/$defs/Approval"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "authored_by": {
+            "description": "Author(s) of this version snapshot.",
+            "items": {
+                "type": "string"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "award_id": {
+            "description": "Sponsor award or contract identifier.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "budget_entries": {
+            "description": "Contract-level datestamped budget snapshots. Captures the proposed / awarded / working planning history and the actual / encumbrance execution view at the contract total level.",
+            "items": {
+                "$ref": "#/$defs/BudgetEntry"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "change_proposals": {
+            "description": "Open and historical change proposals against this SOW.",
+            "items": {
+                "$ref": "#/$defs/ChangeProposal"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "contract_value": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/Money"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "description": "Headline contract value for convenience. The detailed, datestamped breakdown lives in budget_entries; contract_value should match the latest working-budget entry's headline total."
+        },
+        "contracting_parties": {
+            "description": "All parties to the contract with their roles.",
+            "items": {
+                "$ref": "#/$defs/Party"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "contractual_status": {
+            "$ref": "#/$defs/ContractualStatus",
+            "description": "Where this element sits in the contract lifecycle."
+        },
+        "created_on": {
+            "description": "Date this version snapshot was created.",
+            "format": "date",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "current_version": {
+            "description": "True iff this is the current accepted version of the element.",
+            "type": [
+                "boolean",
+                "null"
+            ]
+        },
+        "description": {
+            "description": "Narrative description.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "description": "Stable identifier; together with version forms the element IRI.",
+            "type": "string"
+        },
+        "milestones": {
+            "description": "Milestones defined at the SOW level (referenced by subtasks).",
+            "items": {
+                "$ref": "#/$defs/Milestone"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "name": {
+            "description": "Human-readable name.",
+            "type": "string"
+        },
+        "obligations": {
+            "description": "Non-payment obligations attached at the SOW level (reporting cadence, data-sharing duties, etc.).",
+            "items": {
+                "$ref": "#/$defs/Obligation"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "organizations": {
+            "description": "All organizations participating in the SOW.",
+            "items": {
+                "$ref": "#/$defs/Organization"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "performance_status": {
+            "$ref": "#/$defs/PerformanceStatus",
+            "description": "Execution state, orthogonal to contractual_status."
+        },
+        "period_of_performance_start": {
+            "description": "Calendar date on which program month 1 begins. Anchor for converting due_month values to absolute calendar dates.",
+            "format": "date",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "persons": {
+            "description": "All people referenced anywhere in the SOW.",
+            "items": {
+                "$ref": "#/$defs/Person"
+            },
+            "type": [
+                "array",
+                "null"
+            ]
+        },
+        "previous_version": {
+            "description": "IRI of the immediately prior version of this element.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "prime": {
+            "description": "Prime contractor under this contract.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "program_type": {
+            "$ref": "#/$defs/ProgramType",
+            "description": "Funding mechanism for the contract."
+        },
+        "proposal": {
+            "description": "Foreign key to the upstream Proposal Intent record this contract derives from (pi:Proposal.id in the institution- agnostic Proposal Intent Core schema, https://w3id.org/tislab/ proposal-intent/core). Proposal Intent captures the pre-award information \u2014 sponsor, funding opportunity, PI roster, deadlines, subaward intentions \u2014 that becomes the working contract scope when awarded. Loose coupling by uriorcurie rather than inlining: the proposal and the TaskTeam live in different schemas and evolve independently, but link referentially so a contract instance can be traced back to its proposal of record.\nCardinality is Proposal 1 : N TaskTeam. A single proposal commonly spans multiple task areas (a DARPA TA1/TA2/TA3 BAA, an NIH multi-aim grant, a multi-PI award with separable subscopes) and each awarded slice becomes its own TaskTeam. Use proposal_segment to label which slice this TaskTeam realizes.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "proposal_segment": {
+            "description": "Identifier of the slice of the upstream proposal this TaskTeam realizes. Used when a single Proposal yields multiple TaskTeams (multi-TA BAAs, multi-aim grants, multi-PI awards). Free-text by convention \u2014 typical values are domain-specific strings the proposal itself used: \"TA1\", \"TA2\", \"Aim 1\", \"Aim 2\", \"Work Package C\", \"Subproject A\". Becomes a uriorcurie when the upstream Proposal Intent schema starts modelling task areas / aims as structured entries; for now it stays a string so it can carry whatever the proposal said.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "sponsor": {
+            "description": "Sponsor under this contract.",
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "tasks": {
+            "description": "Tasks (thematic buckets) that make up this SOW.",
+            "items": {
+                "$ref": "#/$defs/Task"
+            },
+            "type": "array"
+        },
+        "version": {
+            "description": "Semantic version of this element.",
+            "type": [
+                "string",
+                "null"
+            ]
+        }
+    },
+    "required": [
+        "tasks",
+        "contractual_status",
+        "id",
+        "name"
+    ],
+    "title": "collabri-core",
+    "type": "object",
+    "version": "0.5.4"
+}
+
