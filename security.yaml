@@ -1,0 +1,286 @@
+id: https://w3id.org/collabri/security
+name: collabri-security
+title: Collabri Security Vocabulary
+description: >-
+  Lean, extensible vocabulary for participation, authorization decisions, and
+  tamper-evident audit exports — the portable "who, what access, what proof"
+  layer alongside collabri/core contracting semantics.
+
+  Uses core Person and Organization; no parallel agent types. Platform
+  services (e.g. Tesserops Keystone) implement this vocabulary.
+
+  OSCAL documents control satisfaction (SSP, SAR); NIST SP 800-53 AC/AU families
+  state requirements. This module defines exportable event shapes that evidence
+  implementation. Extension detail belongs in `attributes` (JSON object).
+version: 0.1.0
+status: draft
+license: https://creativecommons.org/licenses/by/4.0/
+
+prefixes:
+  security: https://w3id.org/collabri/security/
+  core: https://w3id.org/collabri/core/
+  linkml: https://w3id.org/linkml/
+  xsd: http://www.w3.org/2001/XMLSchema#
+  dcterms: http://purl.org/dc/terms/
+  schema: http://schema.org/
+  fhir: http://hl7.org/fhir/
+
+default_prefix: security
+default_range: string
+
+imports:
+  - linkml:types
+  - core
+
+types:
+  JsonObject:
+    typeof: string
+    base: str
+    uri: xsd:string
+    description: >-
+      Open JSON object for extension attributes. In JSON instance documents,
+      use a native object; generated JSON Schema validates structure.
+
+# =============================================================================
+# ENUMERATIONS
+# =============================================================================
+enums:
+
+  Standing:
+    description: >-
+      Realm-scoped participation overlay (access tier). Distinct from Core
+      OrgType (contract/program role). Contact grants no interactive access;
+      vendor and auditor are limited read tiers.
+    enum_uri: security:StandingScheme
+    permissible_values:
+      client: {}
+      performer: {}
+      guest: {}
+      contact:
+        description: Directory/contact only — no interactive realm access.
+      vendor:
+        description: Limited read access within a realm.
+      auditor:
+        description: Limited read access within a realm.
+
+  AuthorizationDecision:
+    description: Policy decision — allow or deny.
+    enum_uri: security:AuthorizationDecisionScheme
+    permissible_values:
+      allow: {}
+      deny: {}
+
+  ChangeOperation:
+    description: Entity write operation for change auditing.
+    enum_uri: security:ChangeOperationScheme
+    close_mappings:
+      - fhir:AuditEventAction
+    permissible_values:
+      insert:
+        description: Create (FHIR C).
+      update:
+        description: Update (FHIR U).
+      delete:
+        description: Delete (FHIR D).
+
+  AccessAction:
+    description: Read or disclosure class action for access auditing.
+    enum_uri: security:AccessActionScheme
+    permissible_values:
+      read: {}
+      search: {}
+      export: {}
+      execute:
+        description: Execute or invoke (maps to FHIR E where applicable).
+
+  AccessOutcome:
+    description: Outcome of an access attempt or disclosure.
+    enum_uri: security:AccessOutcomeScheme
+    permissible_values:
+      success: {}
+      denied: {}
+      partial: {}
+
+  OperatorKind:
+    description: Kind of actor attributed in audit and authorization events.
+    enum_uri: security:OperatorKindScheme
+    permissible_values:
+      person: {}
+      system: {}
+      service: {}
+
+# =============================================================================
+# CLASSES
+# =============================================================================
+classes:
+
+  RealmRef:
+    description: >-
+      Security boundary (realm). Product UI may label this "workspace"; distinct
+      from core:Workspace, which is the contracting/execution container.
+    attributes:
+      id:
+        required: true
+        identifier: true
+        slot_uri: dcterms:identifier
+      slug:
+        description: Human-readable stable slug unique within the deployment.
+        required: true
+      display_name:
+        required: true
+        slot_uri: schema:name
+
+  OperatorRef:
+    description: Actor attributed to an audit or authorization event.
+    attributes:
+      kind:
+        description: Operator category (person, system, or service).
+        range: OperatorKind
+        required: true
+      person:
+        description: When kind is person — uses core:Person (id, name, email).
+        range: Person
+      external_sub:
+        description: Upstream identity subject when kind is person.
+      service_name:
+        description: Service identifier when kind is system or service.
+
+  AuthorizeRequest:
+    description: >-
+      Portable authorization check input. SSP control AC-3 (access enforcement)
+      is satisfied by the implementing PDP; this type is the export contract.
+    attributes:
+      request_id:
+        description: Correlation id for the request.
+      subject:
+        description: Person or token subject being authorized.
+        range: OperatorRef
+        required: true
+      realm:
+        description: Realm scope when the request is realm-bound.
+        range: RealmRef
+      action:
+        description: Action being requested (e.g. read, write, execute).
+        required: true
+      resource_type:
+        description: Resource class (e.g. realm).
+        required: true
+      resource_id:
+        description: Resource identifier.
+        required: true
+      occurred_at:
+        description: Timestamp of the request or event.
+        range: datetime
+        slot_uri: dcterms:created
+
+  AuthorizeDecision:
+    description: >-
+      Authorization decision output. Persisted decisions evidence AC-3 enforcement.
+    attributes:
+      request_id:
+        description: Correlates to AuthorizeRequest.request_id.
+      decision:
+        description: Allow or deny.
+        range: AuthorizationDecision
+        required: true
+      reason:
+        description: >-
+          Machine reason code (e.g. contact_no_access, standing_required,
+          realm_participant). Open string for forward compatibility.
+        required: true
+      subject:
+        range: OperatorRef
+      realm:
+        description: Realm scope when the request is realm-bound.
+        range: RealmRef
+      action:
+        required: true
+      resource_type:
+        required: true
+      resource_id:
+        required: true
+      decided_at:
+        description: Timestamp when the decision was recorded.
+        range: datetime
+        required: true
+        slot_uri: dcterms:created
+      attributes:
+        description: Extension bucket for implementation detail.
+        range: JsonObject
+
+  AccessLogEntry:
+    description: >-
+      Read or disclosure audit record. Aligns with FHIR AuditEvent read/execute
+      actions. Evidence for AU-2 and AU-9 when exported from an append-only store.
+    close_mappings:
+      - fhir:AuditEvent
+    attributes:
+      operator:
+        description: Actor performing or attempting the access.
+        range: OperatorRef
+        required: true
+      action:
+        range: AccessAction
+        required: true
+      entity_type:
+        description: Type of entity accessed or disclosed.
+        required: true
+      record_id:
+        description: Primary key or stable id of the entity, when applicable.
+      realm:
+        description: Realm scope when the request is realm-bound.
+        range: RealmRef
+      outcome:
+        description: Whether access succeeded, was denied, or partially succeeded.
+        range: AccessOutcome
+        required: true
+      occurred_at:
+        range: datetime
+        required: true
+        slot_uri: dcterms:created
+      request_id:
+        description: Correlation id linking to AuthorizeRequest or HTTP request.
+      fhir_action:
+        description: FHIR AuditEvent action code (R or E).
+        pattern: "^[RE]$"
+      attributes:
+        range: JsonObject
+
+  RecordChangeLogEntry:
+    description: >-
+      Entity mutation audit record. Aligns with FHIR AuditEvent create/update/delete.
+      Evidence for AU-2 and change accountability.
+    close_mappings:
+      - fhir:AuditEvent
+    attributes:
+      operator:
+        description: Actor performing or attempting the access.
+        range: OperatorRef
+        required: true
+      operation:
+        description: Insert, update, or delete.
+        range: ChangeOperation
+        required: true
+      entity_type:
+        required: true
+      record_id:
+        required: true
+      realm:
+        description: Realm scope when the request is realm-bound.
+        range: RealmRef
+      prior_state:
+        description: Redacted JSON snapshot before change; omit on insert.
+        range: JsonObject
+      revised_state:
+        description: Redacted JSON snapshot after change; omit on delete.
+        range: JsonObject
+      occurred_at:
+        range: datetime
+        required: true
+        slot_uri: dcterms:created
+      request_id:
+      fhir_action:
+        description: FHIR AuditEvent action code (C, U, or D).
+        pattern: "^[CUD]$"
+      attributes:
+        range: JsonObject
