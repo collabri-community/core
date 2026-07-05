@@ -24,6 +24,11 @@ accompanies them, covering:
   / `Approval` ("GitHub for contracts"), with PAV-aligned version
   metadata on every addressable element.
 
+**Security vocabulary** (participation, authorization decisions, tamper-evident
+audit exports) lives in the sibling module [`security.yaml`](security.yaml)
+(`https://w3id.org/collabri/security`). It imports `Person` and `Organization`
+from Core — no duplicate agent types.
+
 ## Canonical IRI
 
 ```
@@ -37,7 +42,7 @@ current name-based URIs at 1.0.
 
 ## Status
 
-**Draft (v0.5.0).** The model has been pilot-tested against one real
+**Draft (v0.5.4).** The model has been pilot-tested against one real
 SOW (RAPID) but has not been bound to permanent term IDs yet. See
 `docs/governance.md` (TBD) for the versioning and deprecation policy.
 
@@ -61,7 +66,8 @@ under `collabri/core` only what isn't already there.
 
 ## Files
 
-- `core.yaml` — the LinkML source schema.
+- `core.yaml` — contracting and budget LinkML schema.
+- `security.yaml` — participation, authorization, and audit export vocabulary.
 - `core_docs/` — generated docs (run `gen-doc core.yaml -d core_docs/`).
 - `core.json` — JSON Schema export (run `gen-json-schema core.yaml > core.json`).
 
@@ -70,8 +76,11 @@ under `collabri/core` only what isn't already there.
 ```bash
 pip install linkml
 gen-doc core.yaml -d core_docs/
+gen-doc security.yaml -d security_docs/
 gen-json-schema core.yaml > core.json
+gen-json-schema security.yaml > security.json
 linkml-validate -s core.yaml <your-instance.yaml>
+linkml-validate -s security.yaml <your-audit-export.yaml>
 ```
 
 ## License
