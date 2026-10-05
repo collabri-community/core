@@ -32,7 +32,7 @@ description: >-
   (cco:ont00001180, cco:ont00001262, schema:MonetaryAmount). Subtask and
   Deliverable subclasses carry FRAPO/CCO/PROV/PAV alignments via
   class_uri and mappings. Collabri mints only what isn't already there.
-version: 0.5.4
+version: 0.5.5
 status: draft
 license: https://creativecommons.org/licenses/by/4.0/
 
@@ -428,6 +428,14 @@ classes:
       siblings on Subtask. Objective is the *aim* of the work; Deliverable
       is the *artifact* that fulfills the aim. Deliverable descriptions
       should not restate the objective.
+
+      Audience narratives: description is the neutral narrative.
+      sponsor_facing_description is the wording written for the sponsor
+      and is the description a sponsor report prints. org_facing_description
+      is the wording written for the performing organization when that
+      wording differs. When an audience slot is omitted, readers use
+      description. objective.notes is scope clarification, not either
+      narrative.
     is_a: Core
     mixins:
       - Versioned
@@ -455,6 +463,18 @@ classes:
         in_subset: [sow_spec, execution_tracking]
         close_mappings:
           - schema:purpose
+      sponsor_facing_description:
+        description: >-
+          Narrative of this subtask written for the sponsor. This is the
+          description a sponsor report prints. When omitted, use
+          description. Do not store this text on objective.notes.
+        in_subset: [sow_spec, execution_tracking]
+      org_facing_description:
+        description: >-
+          Narrative of this subtask written for the performing
+          organization, when that wording differs from the sponsor
+          narrative. When omitted, use description.
+        in_subset: [sow_spec, execution_tracking]
       due_month:
         description: >-
           Due date expressed as a whole number of months since program
@@ -655,7 +675,9 @@ classes:
       notes:
         description: >-
           Optional free-text notes (e.g. alignment to program goals,
-          scope clarifications).
+          scope clarifications). Not a sponsor-facing or org-facing
+          description; those are sponsor_facing_description and
+          org_facing_description on Subtask.
         in_subset: [sow_spec, execution_tracking]
         close_mappings:
           - skos:scopeNote

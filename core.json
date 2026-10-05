@@ -1424,7 +1424,7 @@
             "description": "The aim of a subtask \u2014 a single statement of what success means for this chunk of work. Sibling to Deliverable on Subtask: Objective is the intent (outcome), Deliverable is the artifact (output) that fulfills it.",
             "properties": {
                 "notes": {
-                    "description": "Optional free-text notes (e.g. alignment to program goals, scope clarifications).",
+                    "description": "Optional free-text notes (e.g. alignment to program goals, scope clarifications). Not a sponsor-facing or org-facing description; those are sponsor_facing_description and org_facing_description on Subtask.",
                     "type": [
                         "string",
                         "null"
@@ -2197,7 +2197,7 @@
                     }
                 }
             ],
-            "description": "A step toward completion of a Task. Subtasks nest recursively to arbitrary depth and are owned by exactly one TaskTeam (no shared ownership). Each subtask may be sponsor- and/or prime-payable; payment is triggered by acceptance of the referenced Milestone.\nModeling note: Objective and Deliverable are deliberately distinct siblings on Subtask. Objective is the *aim* of the work; Deliverable is the *artifact* that fulfills the aim. Deliverable descriptions should not restate the objective.",
+            "description": "A step toward completion of a Task. Subtasks nest recursively to arbitrary depth and are owned by exactly one TaskTeam (no shared ownership). Each subtask may be sponsor- and/or prime-payable; payment is triggered by acceptance of the referenced Milestone.\nModeling note: Objective and Deliverable are deliberately distinct siblings on Subtask. Objective is the *aim* of the work; Deliverable is the *artifact* that fulfills the aim. Deliverable descriptions should not restate the objective.\nAudience narratives: description is the neutral narrative. sponsor_facing_description is the wording written for the sponsor and is the description a sponsor report prints. org_facing_description is the wording written for the performing organization when that wording differs. When an audience slot is omitted, readers use description. objective.notes is scope clarification, not either narrative.",
             "properties": {
                 "authored_by": {
                     "description": "Author(s) of this version snapshot.",
@@ -2340,6 +2340,13 @@
                     ],
                     "description": "The aim of this subtask \u2014 what success looks like, expressed once, independent of any specific deliverable. Optional but strongly encouraged: setting it explicitly is what prevents the 90%-overlap-with-deliverable failure mode."
                 },
+                "org_facing_description": {
+                    "description": "Narrative of this subtask written for the performing organization, when that wording differs from the sponsor narrative. When omitted, use description.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
                 "payable_by": {
                     "description": "Which parties owe payment on acceptance of the milestone gating this subtask. Absent or empty means non-payable. Include \"sponsor\" for sponsor-payable, \"prime\" for prime-payable, or both. The MUST rule that payable subtasks require a deliverable is machine-enforced through this enum slot.",
                     "items": {
@@ -2365,6 +2372,13 @@
                 },
                 "previous_version": {
                     "description": "IRI of the immediately prior version of this element.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "sponsor_facing_description": {
+                    "description": "Narrative of this subtask written for the sponsor. This is the description a sponsor report prints. When omitted, use description. Do not store this text on objective.notes.",
                     "type": [
                         "string",
                         "null"
@@ -3023,6 +3037,6 @@
     ],
     "title": "collabri-core",
     "type": "object",
-    "version": "0.5.4"
+    "version": "0.5.5"
 }
 

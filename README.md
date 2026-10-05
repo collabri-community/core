@@ -42,7 +42,7 @@ current name-based URIs at 1.0.
 
 ## Status
 
-**Draft (v0.5.4).** The model has been pilot-tested against one real
+**Draft (v0.5.5).** The model has been pilot-tested against one real
 SOW (RAPID) but has not been bound to permanent term IDs yet. See
 `docs/governance.md` (TBD) for the versioning and deprecation policy.
 

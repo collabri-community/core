@@ -188,19 +188,6 @@ URI: [SowSpec](SowSpec.md)
 
         
 
-
-        
-
-        
-
-        
-
-
-
-        
-
-        
-
         
 
 
@@ -210,9 +197,9 @@ URI: [SowSpec](SowSpec.md)
 
         
 
+
+
         
-
-
 
         
 
@@ -227,9 +214,26 @@ URI: [SowSpec](SowSpec.md)
 
         
 
+
+
+        
+
         
 
 
+        
+
+        
+
+        
+
+        
+
+        
+
+
+
+        
 
         
 
@@ -337,6 +341,7 @@ URI: [SowSpec](SowSpec.md)
 | [obligation_class](obligation_class.md) | Discriminator for the concrete Obligation subclass |
 | [obligations](obligations.md) | Non-payment obligations attached at the SOW level (reporting cadence, data-sh... |
 | [orcid](orcid.md) | ORCID identifier |
+| [org_facing_description](org_facing_description.md) | Narrative of this subtask written for the performing organization, when that ... |
 | [org_type](org_type.md) | The organization's role in the program |
 | [organization](organization.md) | Specific organization this entry breaks out, on multi-org payable subtasks |
 | [organizations](organizations.md) | All organizations participating in the SOW |
@@ -361,6 +366,7 @@ URI: [SowSpec](SowSpec.md)
 | [source_ref](source_ref.md) | Pointer to the document or accounting record this entry derives from — a Chan... |
 | [spans_full_award](spans_full_award.md) | True if the task spans the entire period of performance |
 | [sponsor](sponsor.md) | Sponsor under this contract |
+| [sponsor_facing_description](sponsor_facing_description.md) | Narrative of this subtask written for the sponsor |
 | [standard_body](standard_body.md) | Organization stewarding the standard, if external |
 | [standard_subtype](standard_subtype.md) | Kind of standard (ADMS-aligned) |
 | [start_date](start_date.md) | Calendar start date of this task (optional; otherwise derived from subtasks) |
