@@ -10,6 +10,8 @@ _A step toward completion of a Task. Subtasks nest recursively to arbitrary dept
 
 _Modeling note: Objective and Deliverable are deliberately distinct siblings on Subtask. Objective is the *aim* of the work; Deliverable is the *artifact* that fulfills the aim. Deliverable descriptions should not restate the objective._
 
+_Audience narratives: description is the neutral narrative. sponsor_facing_description is the wording written for the sponsor and is the description a sponsor report prints. org_facing_description is the wording written for the performing organization when that wording differs. When an audience slot is omitted, readers use description. objective.notes is scope clarification, not either narrative._
+
 
 
 <div data-search-exclude markdown="1">
@@ -137,6 +139,8 @@ URI: [frapo:Task](http://purl.org/cerif/frapo/Task)
     
 
         
+      Subtask : org_facing_description
+        
       Subtask : payable_by
         
           
@@ -162,6 +166,8 @@ URI: [frapo:Task](http://purl.org/cerif/frapo/Task)
 
         
       Subtask : previous_version
+        
+      Subtask : sponsor_facing_description
         
       Subtask : start_date
         
@@ -202,6 +208,8 @@ URI: [frapo:Task](http://purl.org/cerif/frapo/Task)
 | Name | Cardinality and Range | Description | Inheritance |
 | ---  | --- | --- | --- |
 | [objective](objective.md) | 0..1 <br/> [Objective](Objective.md) | The aim of this subtask — what success looks like, expressed once, independen... | direct |
+| [sponsor_facing_description](sponsor_facing_description.md) | 0..1 <br/> [String](String.md) | Narrative of this subtask written for the sponsor | direct |
+| [org_facing_description](org_facing_description.md) | 0..1 <br/> [String](String.md) | Narrative of this subtask written for the performing organization, when that ... | direct |
 | [due_month](due_month.md) | 1 <br/> [Integer](Integer.md) | Due date expressed as a whole number of months since program start | direct |
 | [start_date](start_date.md) | 0..1 <br/> [Date](Date.md) | Calendar start date for this subtask | direct |
 | [end_date](end_date.md) | 0..1 <br/> [Date](Date.md) | Calendar end date for this subtask | direct |
@@ -323,7 +331,13 @@ description: 'A step toward completion of a Task. Subtasks nest recursively to a
 
   Modeling note: Objective and Deliverable are deliberately distinct siblings on Subtask.
   Objective is the *aim* of the work; Deliverable is the *artifact* that fulfills
-  the aim. Deliverable descriptions should not restate the objective.'
+  the aim. Deliverable descriptions should not restate the objective.
+
+  Audience narratives: description is the neutral narrative. sponsor_facing_description
+  is the wording written for the sponsor and is the description a sponsor report prints.
+  org_facing_description is the wording written for the performing organization when
+  that wording differs. When an audience slot is omitted, readers use description.
+  objective.notes is scope clarification, not either narrative.'
 from_schema: https://w3id.org/collabri/core
 close_mappings:
 - cco:ont00000005
@@ -354,6 +368,29 @@ attributes:
     - Subtask
     range: Objective
     inlined: true
+  sponsor_facing_description:
+    name: sponsor_facing_description
+    description: Narrative of this subtask written for the sponsor. This is the description
+      a sponsor report prints. When omitted, use description. Do not store this text
+      on objective.notes.
+    in_subset:
+    - sow_spec
+    - execution_tracking
+    from_schema: https://w3id.org/collabri/core
+    rank: 1000
+    domain_of:
+    - Subtask
+  org_facing_description:
+    name: org_facing_description
+    description: Narrative of this subtask written for the performing organization,
+      when that wording differs from the sponsor narrative. When omitted, use description.
+    in_subset:
+    - sow_spec
+    - execution_tracking
+    from_schema: https://w3id.org/collabri/core
+    rank: 1000
+    domain_of:
+    - Subtask
   due_month:
     name: due_month
     description: Due date expressed as a whole number of months since program start.
@@ -576,7 +613,13 @@ description: 'A step toward completion of a Task. Subtasks nest recursively to a
 
   Modeling note: Objective and Deliverable are deliberately distinct siblings on Subtask.
   Objective is the *aim* of the work; Deliverable is the *artifact* that fulfills
-  the aim. Deliverable descriptions should not restate the objective.'
+  the aim. Deliverable descriptions should not restate the objective.
+
+  Audience narratives: description is the neutral narrative. sponsor_facing_description
+  is the wording written for the sponsor and is the description a sponsor report prints.
+  org_facing_description is the wording written for the performing organization when
+  that wording differs. When an audience slot is omitted, readers use description.
+  objective.notes is scope clarification, not either narrative.'
 from_schema: https://w3id.org/collabri/core
 close_mappings:
 - cco:ont00000005
@@ -608,6 +651,33 @@ attributes:
     - Subtask
     range: Objective
     inlined: true
+  sponsor_facing_description:
+    name: sponsor_facing_description
+    description: Narrative of this subtask written for the sponsor. This is the description
+      a sponsor report prints. When omitted, use description. Do not store this text
+      on objective.notes.
+    in_subset:
+    - sow_spec
+    - execution_tracking
+    from_schema: https://w3id.org/collabri/core
+    rank: 1000
+    owner: Subtask
+    domain_of:
+    - Subtask
+    range: string
+  org_facing_description:
+    name: org_facing_description
+    description: Narrative of this subtask written for the performing organization,
+      when that wording differs from the sponsor narrative. When omitted, use description.
+    in_subset:
+    - sow_spec
+    - execution_tracking
+    from_schema: https://w3id.org/collabri/core
+    rank: 1000
+    owner: Subtask
+    domain_of:
+    - Subtask
+    range: string
   due_month:
     name: due_month
     description: Due date expressed as a whole number of months since program start.
